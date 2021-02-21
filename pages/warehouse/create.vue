@@ -2,7 +2,7 @@
   <v-row>
     <v-col class="text-center">
       <blockquote class="blockquote">
-          Manage Item
+          Create Warehouse
         <footer>
           <small>
             <em>&mdash;John Johnson</em>

@@ -63,12 +63,12 @@ const navigationContent = [
                 {
                   name: "Create",
                   icon: "fas fa-plus",
-                  link: "/inventory/item/create",
+                  link: "/inventory/warehouse/create",
                 },
                 {
                   name: "Management",
                   icon: "fas fa-toolbox",
-                  link: "/inventory/item",
+                  link: "/inventory/warehouse",
                 }
               ]
           },
@@ -79,12 +79,12 @@ const navigationContent = [
                   {
                       name: "Create",
                       icon: "fas fa-plus",
-                      link: "/inventory/item/create",
+                      link: "/inventory/stock/create/",
                   },
                   {
                       name: "Management",
                       icon: "fas fa-toolbox",
-                      link: "/inventory/item",
+                      link: "/inventory/stock",
                   }
               ]
           }
