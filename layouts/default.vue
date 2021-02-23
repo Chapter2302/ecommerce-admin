@@ -110,7 +110,7 @@
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
             <v-avatar height="40" width="40">
-              <img src="https://ramcotubular.com/wp-content/uploads/default-avatar.jpg"/>
+              <img :src="require('../assets/medias/images/defaultuserimg.png')"/>
             </v-avatar>
             <span>Admin</span>
           </div>

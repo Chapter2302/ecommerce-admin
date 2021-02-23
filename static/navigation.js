@@ -40,55 +40,103 @@ const navigationContent = [
       name: "Inventory",
       icon: "fas fa-archive",
       subItems: [
-          {
-              name: "Item",
-              icon: "fas fa-box-open",
-              children: [
-                  {
-                      name: "Create",
-                      icon: "fas fa-plus",
-                      link: "/inventory/item/create",
-                  },
-                  {
-                      name: "Management",
-                      icon: "fas fa-toolbox",
-                      link: "/inventory/item",
-                  }
-              ]
-          },
-          {
-              name: "Warehouse",
-              icon: "fas fa-warehouse",
-              children: [
-                {
+        {
+          name: "Item",
+          icon: "fas fa-box-open",
+          children: [
+              {
                   name: "Create",
                   icon: "fas fa-plus",
-                  link: "/inventory/warehouse/create",
-                },
-                {
+                  link: "/inventory/item/create",
+              },
+              {
                   name: "Management",
                   icon: "fas fa-toolbox",
-                  link: "/inventory/warehouse",
-                }
-              ]
+                  link: "/inventory/item/management",
+              }
+          ]
+        },
+        {
+          name: "Warehouse",
+          icon: "fas fa-warehouse",
+          children: [
+            {
+              name: "Create",
+              icon: "fas fa-plus",
+              link: "/inventory/warehouse/create",
+            },
+            {
+              name: "Management",
+              icon: "fas fa-toolbox",
+              link: "/inventory/warehouse/management",
+            }
+          ]
+        }
+      ]
+  },
+  {
+    name: "Product",
+    icon: "fab fa-buffer",
+    subItems: [
+      {
+        name: "Model",
+        icon: "fab fa-buromobelexperte",
+        children: [
+          {
+            name: "Create",
+            icon: "fas fa-plus",
+            link: "/product/model/create/",
           },
           {
-              name: "Stock",
-              icon: "fas fa-boxes",
-              children: [
-                  {
-                      name: "Create",
-                      icon: "fas fa-plus",
-                      link: "/inventory/stock/create/",
-                  },
-                  {
-                      name: "Management",
-                      icon: "fas fa-toolbox",
-                      link: "/inventory/stock",
-                  }
-              ]
+              name: "Management",
+              icon: "fas fa-toolbox",
+              link: "/product/model/management",
           }
-      ]
+        ]
+      },
+      {
+        name: "Attribute",
+        icon: "fas fa-cogs",
+        children: [
+          {
+            name: "Create",
+            icon: "fas fa-plus",
+            link: "/product/attribute/create/",
+          },
+          {
+              name: "Management",
+              icon: "fas fa-toolbox",
+              link: "/product/attribute/management",
+          }
+        ]
+      },
+      {
+        name: "Variant",
+        icon: "fas fa-hard-hat",
+        children: [
+          {
+            name: "Create",
+            icon: "fas fa-plus",
+            link: "/product/attribute/create/",
+          },
+          {
+            name: "Management",
+            icon: "fas fa-toolbox",
+            link: "/product/attribute/management",
+          }
+        ]
+      },
+      {
+        name: "Create",
+        icon: "fas fa-plus",
+        link: "/product/create"
+      },
+      {
+        name: "Management",
+        icon: "fas fa-toolbox",
+        link: "/product/management"
+      }
+    ]
   },
   {
     name: "Report",
