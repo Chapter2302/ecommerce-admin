@@ -87,13 +87,29 @@
                 <v-row>
                     <v-col class="col-12 col-md-4">
                         <v-text-field
-                            label="Product Search"
+                            label="Find Product" placeholder="Text or SKU"
                             color="primary" type="text"
-                            @click:append="toggleSearchResultDialog"
-                            append-icon="mdi-magnify"
                         >
+                            <template v-slot:append>
+                                <v-btn color="primary" small @click="toggleSearchResultDialog">
+                                    Search
+                                </v-btn>
+                            </template>
                         </v-text-field>
                     </v-col> 
+                    <v-col class="col-12 col-md-4">
+                        <v-text-field
+                            label="Phone Number" required
+                            color="primary" type="number"
+                        >
+                        </v-text-field>
+                    </v-col>
+                    <v-col class="col-12 col-md-4">
+                        <v-select
+                            :items="['Giao Hàng Tiết Kiệm']"
+                            label="Delivery"
+                        ></v-select>
+                    </v-col>
                 </v-row>
                 <v-row>
                     <v-col cols="12">
