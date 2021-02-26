@@ -7,39 +7,36 @@
                     <v-icon small right>mdi-filter</v-icon>
                 </v-btn>
             </div>
-            <div class="d-flex align-center">
-                <v-text-field
-                    class="mr-3 mt-0 pt-0"
-                    style="width: 250px"
-                    label="Tìm kiếm"
-                    color="primary"
-                    append-icon="mdi-magnify"
-                >
-                </v-text-field>
-            </div>
         </div>
 
         <!--Advance filter-->
-        <div class="d-flex justify-space-around">
+        <div class="d-flex">
+            <v-text-field
+                class="col-md-3"
+                label="Tìm kiếm"
+                color="primary"
+                append-icon="mdi-magnify"
+            >
+            </v-text-field>
             <v-select
-                style="max-width: 250px"
-                :items="['a', 'b']"
+                class="col-md-3"
+                :items="['District 1', 'Binh Thanh', 'Phu Nhuan', 'Thu Duc']"
                 item-text="name"
                 item-value="value"
                 hide-details
                 label="District"
             ></v-select>
             <v-select
-                style="max-width: 250px"
-                :items="['a', 'b']"
+                class="col-md-3"
+                :items="['Ho Chi Minh']"
                 item-text="name"
                 item-value="value"
                 hide-details
                 label="City"
             ></v-select>
             <v-select
-                style="max-width: 250px"
-                :items="['a', 'b']"
+                class="col-md-3"
+                :items="['Vietnam']"
                 item-text="name"
                 item-value="value"
                 hide-details
@@ -66,6 +63,9 @@
                 <tbody v-if="!isLoading">
                     <tr>
                         <td class="py-4">
+                            Warehouse_One
+                        </td>
+                        <td class="py-4">
                             Test Warehouse
                         </td>
                         <td class="py-4">
@@ -82,8 +82,8 @@
                         </td>
                         <td class="py-4">
                             <v-btn
-                                class="ml-2" elevation="2" 
-                                color="primary" nuxt dark
+                                class="ml-2" 
+                                color="primary" dark :to="`/inventory/warehouse/warehouse_1`"
                             >Detail</v-btn>
                         </td>
                     </tr>
@@ -99,13 +99,14 @@ export default {
         return {
             isLoading: false,
             headers: [
+                "Code",
                 "Name",
                 "Address",
                 "District",
                 "City",
                 "Country",
                 "Action"
-            ],
+            ]
         }
     }   
 }

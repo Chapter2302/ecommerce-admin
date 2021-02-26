@@ -1,4 +1,4 @@
-const navigationContent = [
+const defaultContent = [
   {
     name: "Home",
     icon: "fas fa-home",
@@ -149,5 +149,67 @@ const navigationContent = [
     link: "/media",
   }
 ];
+
+const navigationContent = [
+  {
+    name: "Home",
+    icon: "fas fa-home",
+    link: "/"
+  },
+  {
+    name: "Inventory",
+    icon: "fas fa-archive",
+    subItems: [
+      {
+        name: "Item",
+        icon: "fas fa-box-open",
+        children: [
+            {
+                name: "Create",
+                icon: "fas fa-plus",
+                link: "/inventory/item/create",
+            },
+            {
+                name: "Management",
+                icon: "fas fa-toolbox",
+                link: "/inventory/item/management",
+            }
+        ]
+      },
+      {
+        name: "Warehouse",
+        icon: "fas fa-warehouse",
+        children: [
+          {
+            name: "Create",
+            icon: "fas fa-plus",
+            link: "/inventory/warehouse/create",
+          },
+          {
+            name: "Management",
+            icon: "fas fa-toolbox",
+            link: "/inventory/warehouse/management",
+          }
+        ]
+      },
+    ]
+  }, 
+  {
+    name: "Transaction",
+    icon: "fas fa-luggage-cart",
+    subItems: [
+      {
+        name: "Create",
+        icon: "fas fa-plus",
+        link: "/transaction/create",
+      },
+      {
+        name: "Management",
+        icon: "fas fa-toolbox",
+        link: "/transaction/management",
+      }
+    ]
+  } 
+]
 
 export default navigationContent;

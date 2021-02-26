@@ -4,7 +4,7 @@
             v-model="stockDialog" max-width="600"
         >
             <v-card>
-                <v-card-title class="headline grey lighten-2">
+                <v-card-title class="headline primary white--text">
                     Stock Table
                 </v-card-title>
                 <v-simple-table class="mt-5">
