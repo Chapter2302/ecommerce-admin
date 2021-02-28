@@ -171,6 +171,14 @@
             :single-select="false" class="mt-8"
             item-key="code" show-select
         >
+            <!-- City Custom -->
+            <template v-slot:item.location.city="{ item }">
+                <span v-for="city in citiesList" :key="city.cityCode">
+                    <span v-if="city.cityCode == item.location.city">{{city.cityName}}</span>
+                </span>
+            </template>
+            <!-- City Custom -->
+
             <!-- 3 Actions Buttons -->
             <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
