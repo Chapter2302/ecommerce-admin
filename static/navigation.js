@@ -163,34 +163,12 @@ const navigationContent = [
       {
         name: "Item",
         icon: "fas fa-box-open",
-        children: [
-            {
-                name: "Create",
-                icon: "fas fa-plus",
-                link: "/inventory/item/create",
-            },
-            {
-                name: "Management",
-                icon: "fas fa-toolbox",
-                link: "/inventory/item/management",
-            }
-        ]
+        link: "/inventory/item",
       },
       {
         name: "Warehouse",
         icon: "fas fa-warehouse",
-        children: [
-          {
-            name: "Create",
-            icon: "fas fa-plus",
-            link: "/inventory/warehouse/create",
-          },
-          {
-            name: "Management",
-            icon: "fas fa-toolbox",
-            link: "/inventory/warehouse/management",
-          }
-        ]
+        link: "/inventory/warehouse",
       },
     ]
   }, 
@@ -201,7 +179,7 @@ const navigationContent = [
       {
         name: "Create",
         icon: "fas fa-plus",
-        link: "/transaction/create",
+        link: "/transaction/create"
       },
       {
         name: "Management",
