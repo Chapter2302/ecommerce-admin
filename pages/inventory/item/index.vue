@@ -16,8 +16,12 @@
                 <v-data-table
                     :headers="stockTableHeaders"
                     :single-select="false" class="mt-8"
-                    :items="stockTableItem"
+                    :items="stockTableItem" hide-default-footer
                 ></v-data-table>
+                <div class="d-flex px-4 py-2 text-xl-h4">
+                    <v-spacer></v-spacer>
+                    <b>TOTAL:</b> <span class="ml-2">{{inventoryItemActionDialogInfo.detailTotalStock}}</span>
+                </div>
             </v-card>
         </v-dialog>
         <!-- Stock Dialog -->
@@ -171,7 +175,8 @@ export default {
             stockTableItem: [],
             inventoryItemActionDialogInfo: {
                 editorName: "",
-                creatorName: ""
+                creatorName: "",
+                detailTotalStock: 0,
             },
             stockTableHeaders: [],
             inventoryItemTableHeaders: [
@@ -189,7 +194,7 @@ export default {
             onSuccess: async data => {
                 this.warehouseList = data
                 this.stockTableHeaders = data.map(item => {
-                    return { text: item.name, value: String(item.code) }
+                    return { text: item.name, value: String(item.code), sortable: false }
                 })
                 console.log(this.stockTableHeaders)
             },
@@ -255,16 +260,20 @@ export default {
             })
             Promise.all(stockPromises).then(values => {
                 const stockItem = {}
+                let totalStock = 0
                 values.forEach(value => { 
                     stockItem[value.warehouseCode] = value.stock
+                    totalStock += value.stock
                 })
                 this.stockTableItem.push(stockItem) 
+                this.inventoryItemActionDialogInfo.detailTotalStock = totalStock
                 this.stockDialog = true
             })
         },
         closeStockDialog() {
             this.stockDialog = false
             this.stockTableItem = []
+            this.inventoryItemActionDialogInfo.detailTotalStock = 0
         }
     }   
 }

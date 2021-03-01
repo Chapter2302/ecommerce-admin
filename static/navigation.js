@@ -170,6 +170,11 @@ const navigationContent = [
         link: "/transaction/management",
       }
     ]
+  },
+  {
+    name: "Media",
+    icon: "fas fa-image",
+    link: "/media",
   } 
 ]
 
