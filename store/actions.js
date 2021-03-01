@@ -54,6 +54,38 @@ export async function getInventoryItemList(
     });
 }
 
+export async function getInventoryItemStock(
+    { dispatch, commit },
+    { data, onSuccess, onError }
+) {
+    const obj = { ...data };
+
+    Object.keys(obj).forEach(key => obj[key] === "" && delete obj[key]);
+    const params = obj;
+
+    return await axios({
+        url: `http://data.cams.vn/v1/api/inventory/stock`,
+        method: "GET",
+        params: params ? params : false,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
 export async function getAttributeList(
     { dispatch, commit },
     { onSuccess, onError }

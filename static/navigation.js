@@ -37,44 +37,6 @@ const defaultContent = [
     ]
   },
   {
-      name: "Inventory",
-      icon: "fas fa-archive",
-      subItems: [
-        {
-          name: "Item",
-          icon: "fas fa-box-open",
-          children: [
-              {
-                  name: "Create",
-                  icon: "fas fa-plus",
-                  link: "/inventory/item/create",
-              },
-              {
-                  name: "Management",
-                  icon: "fas fa-toolbox",
-                  link: "/inventory/item/management",
-              }
-          ]
-        },
-        {
-          name: "Warehouse",
-          icon: "fas fa-warehouse",
-          children: [
-            {
-              name: "Create",
-              icon: "fas fa-plus",
-              link: "/inventory/warehouse/create",
-            },
-            {
-              name: "Management",
-              icon: "fas fa-toolbox",
-              link: "/inventory/warehouse/management",
-            }
-          ]
-        }
-      ]
-  },
-  {
     name: "Product",
     icon: "fab fa-buffer",
     subItems: [
@@ -172,6 +134,27 @@ const navigationContent = [
       },
     ]
   }, 
+  {
+    name: "Product",
+    icon: "fab fa-buffer",
+    subItems: [
+      {
+        name: "Model",
+        icon: "fab fa-buromobelexperte",
+        link: "/product/model"
+      },
+      {
+        name: "Attribute",
+        icon: "fas fa-cogs",
+        link: "/product/attribute"
+      },
+      {
+        name: "Variant",
+        icon: "fas fa-hard-hat",
+        link: "/product/variant" 
+      }
+    ]
+  },
   {
     name: "Transaction",
     icon: "fas fa-luggage-cart",

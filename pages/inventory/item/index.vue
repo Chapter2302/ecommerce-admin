@@ -2,16 +2,21 @@
     <div class="wrapper">
         <!-- Stock Dialog -->
         <v-dialog
-            v-model="stockDialog" max-width="600"
+            v-model="stockDialog" max-width="600" persistent
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
-                    Stock Of Item
+                    <span>Stock Of Item</span>
+                    <v-spacer></v-spacer>
+                    <v-btn icon @click="closeStockDialog()">
+                        <v-icon class="white--text">fas fa-times</v-icon>
+                    </v-btn>
                 </v-card-title>
 
                 <v-data-table
-                    :headers="inventoryItemTableHeaders"
-                    :single-select="false" class="mt-8" show-select
+                    :headers="stockTableHeaders"
+                    :single-select="false" class="mt-8"
+                    :items="stockTableItem"
                 ></v-data-table>
             </v-card>
         </v-dialog>
@@ -105,7 +110,7 @@
                         <v-btn 
                             small icon 
                             class="mx-1" 
-                            color="primary" @click="stockDialog = true"
+                            color="primary" @click="openItemStockDialog(item.id)"
                             v-on="on" v-bind="attrs"
                         >
                             <v-icon small>
@@ -119,7 +124,7 @@
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
                             small icon
-                            class="mx-1" @click="openEditorDialog(item)"
+                            class="mx-1" @click="openEditorDialog(item.id)"
                             color="primary"
                             v-on="on" v-bind="attrs"
                         >
@@ -162,15 +167,13 @@ export default {
             editorDialog: false,
             creatorDialog: false,
             isLoading: false,
+            warehouseList: [],
+            stockTableItem: [],
             inventoryItemActionDialogInfo: {
                 editorName: "",
                 creatorName: ""
             },
-            stockTableHeaders: [
-                "Warehouse 1",
-                "Warehouse 2",
-                "Warehouse 3"
-            ],
+            stockTableHeaders: [],
             inventoryItemTableHeaders: [
                 { text: "Code", sortable: false, value: "code" },
                 { text: "Name", value: "name" },
@@ -182,6 +185,18 @@ export default {
     },
     async created() {
         this.fetchInventoryItemList()
+        this.$store.dispatch("getWarehouseList", {
+            onSuccess: async data => {
+                this.warehouseList = data
+                this.stockTableHeaders = data.map(item => {
+                    return { text: item.name, value: String(item.code) }
+                })
+                console.log(this.stockTableHeaders)
+            },
+            onError: async data => {
+                console.log('warehouse items fetch error: ', data)
+            }
+        })
     },
     methods: {
         async fetchInventoryItemList() {
@@ -215,6 +230,41 @@ export default {
         },
         openCreatorDialog() {
             this.creatorDialog = true
+        },
+        openItemStockDialog(itemId) {
+            const stockPromises = this.warehouseList.map(warehouse => {
+                return new Promise((resolve) => {
+                    const result = {}
+                    const data = {
+                        beautify: true,
+                        warehouse_id: warehouse.id,
+                        item_id: itemId
+                    }
+                    this.$store.dispatch("getInventoryItemStock", {
+                        data,
+                        onSuccess: async data => {
+                            result.warehouseCode = warehouse.code 
+                            result.stock = data ? data.stock : 0
+                            resolve(result)
+                        },
+                        onError: async data => {
+                            console.log('stock item fetch error: ', data)
+                        }
+                    })
+                })
+            })
+            Promise.all(stockPromises).then(values => {
+                const stockItem = {}
+                values.forEach(value => { 
+                    stockItem[value.warehouseCode] = value.stock
+                })
+                this.stockTableItem.push(stockItem) 
+                this.stockDialog = true
+            })
+        },
+        closeStockDialog() {
+            this.stockDialog = false
+            this.stockTableItem = []
         }
     }   
 }
