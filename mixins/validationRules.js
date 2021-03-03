@@ -5,6 +5,10 @@ export default {
           password: [
             val => (val || "").length > 0 || "Password needs to be filled"
           ],
+
+          select(value) {
+            return val =>  val.length > 0 || `${value} needs to be selected`
+          },
   
           textField(inputField) {
             return value => !!value || `${inputField} needs to be filled`

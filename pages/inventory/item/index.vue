@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper px-4">
         <!-- Stock Dialog -->
         <v-dialog
             v-model="stockDialog" max-width="600" persistent
@@ -28,14 +28,21 @@
 
         <!-- Creator Dialog -->
         <v-dialog
-            v-model="creatorDialog" max-width="600"
+            v-model="creatorDialog" max-width="400"
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
-                    Item Editor
+                    Item Creator
                 </v-card-title>
                 <v-card-text class="pt-4">
                     <v-row>
+                        <v-col cols="12" sm="6">
+                            <v-text-field
+                                label="Code" v-model="inventoryItemActionDialogInfo.creatorCode"
+                                color="primary" :rules="[rules.textField('Code')]"
+                            >
+                            </v-text-field>
+                        </v-col>
                         <v-col cols="12" sm="6">
                             <v-text-field
                                 label="Name" v-model="inventoryItemActionDialogInfo.creatorName"
@@ -43,14 +50,14 @@
                             >
                             </v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" class="d-flex justify-center align-center">
-                            <v-btn color="primary" class="mr-2" small @click="creatorDialog = false">
-                                Close
-                            </v-btn>
-                            <v-btn color="primary" small @click="createInventoryItem()">
-                                Create
-                            </v-btn>
-                        </v-col>
+                    </v-row>
+                    <v-row class="d-flex justify-end align-center mb-1">
+                        <v-btn color="primary" class="mr-2" small @click="creatorDialog = false">
+                            Close
+                        </v-btn>
+                        <v-btn color="primary" small @click="createInventoryItem()">
+                            Create
+                        </v-btn>
                     </v-row>
                 </v-card-text>
             </v-card>
@@ -59,7 +66,7 @@
 
         <!-- Editor Dialog -->
         <v-dialog
-            v-model="editorDialog" max-width="600"
+            v-model="editorDialog" max-width="400"
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
@@ -69,24 +76,48 @@
                     <v-row>
                         <v-col cols="12" sm="6">
                             <v-text-field
+                                label="Code" v-model="inventoryItemActionDialogInfo.editorCode"
+                                color="primary" :rules="[rules.textField('Code')]"
+                            >
+                            </v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <v-text-field
                                 label="Name" v-model="inventoryItemActionDialogInfo.editorName"
                                 color="primary" :rules="[rules.textField('Name')]"
                             >
                             </v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" class="d-flex justify-center align-center">
-                            <v-btn color="primary" class="mr-2" small @click="editorDialog = false">
-                                Close
-                            </v-btn>
-                            <v-btn color="primary" small @click="updateInventoryItem()">
-                                Update
-                            </v-btn>
-                        </v-col>
+                    </v-row>
+                    <v-row class="d-flex justify-end align-center mb-1">
+                        <v-btn color="primary" class="mr-2" small @click="editorDialog = false">
+                            Close
+                        </v-btn>
+                        <v-btn color="primary" small @click="updateInventoryItem()">
+                            Update
+                        </v-btn>
                     </v-row>
                 </v-card-text>
             </v-card>
         </v-dialog>
         <!-- Editor Dialog -->
+
+        <!-- Delete Dialog -->
+        <v-dialog max-width="300" v-model="deleteDialog" >
+            <v-card class="py-4">
+                <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
+                <v-card-actions class="d-flex justify-center ">
+                    <v-btn color="primary" class="mr-2" @click="deleteDialog = false">
+                        Close
+                    </v-btn>
+                    <v-btn color="primary">
+                        Confirm
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- Delete Dialog -->
+
         <div class="d-flex justify-space-between relative mt-3">
             <v-btn color="primary">
                 Bộ lọc
@@ -128,7 +159,7 @@
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
                             small icon
-                            class="mx-1" @click="openEditorDialog(item.id)"
+                            class="mx-1" @click="openEditorDialog(item)"
                             color="primary"
                             v-on="on" v-bind="attrs"
                         >
@@ -142,7 +173,7 @@
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
-                            small icon 
+                            small icon @click="openDeleteDialog(item)"
                             class="mx-1" 
                             color="primary"
                             v-on="on" v-bind="attrs"
@@ -170,10 +201,14 @@ export default {
             stockDialog: false,
             editorDialog: false,
             creatorDialog: false,
+            deleteDialog: false,
             isLoading: false,
             warehouseList: [],
             stockTableItem: [],
             inventoryItemActionDialogInfo: {
+                editorItemId: "", 
+                editorCode: "",
+                creatorCode: "",
                 editorName: "",
                 creatorName: "",
                 detailTotalStock: 0,
@@ -220,17 +255,47 @@ export default {
             })
         },
         updateInventoryItem() {
-            console.log("update: ", {
-                editorName: this.inventoryItemActionDialogInfo.editorName,
+            const itemId = this.inventoryItemActionDialogInfo.editorItemId
+            const data = { 
+                code: this.inventoryItemActionDialogInfo.editorCode,
+                name: this.inventoryItemActionDialogInfo.editorName
+            }
+            this.$store.dispatch("updateInventoryItem", {
+                itemId,
+                data,
+                onSuccess: async data => {
+                    alert('Update Success')
+                    this.fetchInventoryItemList()
+                },
+                onError: async data => {
+                    console.log('update inventory items error: ', data)
+                    alert('Update Fail')
+                }
             })
+            this.editorDialog = false
         },
         createInventoryItem() {
-            console.log("create: ", {
-                editorName: this.inventoryItemActionDialogInfo.creatorName,
+            const data = { 
+                code: this.inventoryItemActionDialogInfo.creatorCode,
+                name: this.inventoryItemActionDialogInfo.creatorName
+            }
+            this.$store.dispatch("createInventoryItem", {
+                data,
+                onSuccess: async data => {
+                    alert('Create Success')
+                    this.fetchInventoryItemList()
+                },
+                onError: async data => {
+                    console.log('create inventory items error: ', data)
+                    alert('Create Fail')
+                }
             })
+            this.creatorDialog = false
         },
         openEditorDialog(item) {
             this.editorDialog = true
+            this.inventoryItemActionDialogInfo.editorItemId = item.id
+            this.inventoryItemActionDialogInfo.editorCode = item.code
             this.inventoryItemActionDialogInfo.editorName = item.name
         },
         openCreatorDialog() {
@@ -269,6 +334,9 @@ export default {
                 this.inventoryItemActionDialogInfo.detailTotalStock = totalStock
                 this.stockDialog = true
             })
+        },
+        openDeleteDialog(item) {
+            this.deleteDialog = true
         },
         closeStockDialog() {
             this.stockDialog = false

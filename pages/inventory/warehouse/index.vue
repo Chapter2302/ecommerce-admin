@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper px-4">
         <div class="d-flex justify-space-between mt-3">
             <v-btn color="primary">
                 Filter
@@ -27,31 +27,31 @@
                                 v-model="warehouseActionDialogInfo.creatorName"
                                 label="Name"
                                 :rules="[rules.textField('Name')]"
-                                color="primary"
+                                color="primary" dense
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="8">
                             <v-text-field
                                 v-model="warehouseActionDialogInfo.creatorAddress"
-                                label="Address"
+                                label="Address" dense
                                 color="primary"
                             >
                             </v-text-field>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row class="mb-2">
                         <v-col cols="12" sm="4">
                             <v-select
                                 :items="['1', '2', 'Binh Thanh', 'Phu Nhuan']"
                                 hide-details v-model="warehouseActionDialogInfo.creatorDistrict"
-                                label="District" 
+                                label="District" dense
                             ></v-select>
                         </v-col>
                         <v-col cols="12" sm="4">
                             <v-select
                                 :items="citiesList" v-model="warehouseActionDialogInfo.creatorCity"
-                                item-text="cityName"  item-value="cityCode"
-                                hide-details 
+                                item-text="cityName" item-value="cityCode"
+                                hide-details dense
                                 label="City"
                             ></v-select>
                         </v-col>
@@ -79,11 +79,11 @@
                     Warehouse Editor
                 </v-card-title>
                 <v-card-text class="pt-4">
-                    <v-row>
+                    <v-row class="mt-2">
                         <v-col cols="12" sm="4">
                             <v-text-field
                                 v-model="warehouseActionDialogInfo.editorName"
-                                label="Name"
+                                label="Name" dense
                                 :rules="[rules.textField('Name')]"
                                 color="primary"
                             ></v-text-field>
@@ -91,25 +91,25 @@
                         <v-col cols="12" sm="8">
                             <v-text-field
                                 v-model="warehouseActionDialogInfo.editorAddress"
-                                label="Address"
+                                label="Address" dense
                                 color="primary"
                             >
                             </v-text-field>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row class="mb-2">
                         <v-col cols="12" sm="4">
                             <v-select
                                 :items="['1', '2', 'Binh Thanh', 'Phu Nhuan']"
                                 hide-details v-model="warehouseActionDialogInfo.editorDistrict"
-                                label="District"
+                                label="District" dense
                             ></v-select>
                         </v-col>
                         <v-col cols="12" sm="4">
                             <v-select
                                 :items="citiesList" v-model="warehouseActionDialogInfo.editorCity"
                                 item-text="cityName"  item-value="cityCode"
-                                hide-details
+                                hide-details dense
                                 label="City"
                             ></v-select>
                         </v-col>
@@ -126,6 +126,22 @@
             </v-card>
         </v-dialog>
         <!-- EditorDialog -->
+
+        <!-- Delete Dialog -->
+        <v-dialog max-width="300" v-model="deleteDialog" >
+            <v-card class="py-4">
+                <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
+                <v-card-actions class="d-flex justify-center ">
+                    <v-btn color="primary" class="mr-2" @click="deleteDialog = false">
+                        Close
+                    </v-btn>
+                    <v-btn color="primary">
+                        Confirm
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- Delete Dialog -->
 
         <!--Advance filter-->
         <div class="d-none">
@@ -214,7 +230,7 @@
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
-                            small icon 
+                            small icon @click="openDeleteDialog(item)"
                             class="mx-1" 
                             color="primary"
                             v-on="on" v-bind="attrs"
@@ -242,6 +258,7 @@ export default {
             isLoading: false,
             creatorDialog: false,
             editorDialog: false,
+            deleteDialog: false,
             warehouseActionDialogInfo: {
                 creatorName: "",
                 editorName: "",
@@ -312,6 +329,9 @@ export default {
             this.warehouseActionDialogInfo.editorAddress = item.location.address
             this.warehouseActionDialogInfo.editorDistrict = item.location.district
             this.warehouseActionDialogInfo.editorCity = item.location.city
+        },
+        openDeleteDialog(item) {
+            this.deleteDialog = true
         }
     }   
 }

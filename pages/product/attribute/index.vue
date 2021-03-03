@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+    <div class="wrapper px-4">
         <div class="d-flex justify-space-between mt-3">
             <v-btn color="primary">
                 Filter
@@ -14,7 +14,7 @@
         <!-- CreatorDialog -->
         <v-dialog 
             v-model="creatorDialog"
-            max-width="600" 
+            max-width="320" 
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
@@ -22,46 +22,72 @@
                 </v-card-title>
                 <v-card-text class="pt-4">
                     <v-row>
-                        <v-col cols="12" sm="4">
+                        <v-col cols="12" sm="6">
                             <v-text-field
-                                v-model="warehouseActionDialogInfo.creatorName"
-                                label="Name"
-                                :rules="[rules.textField('Name')]"
+                                label="Type" dense
+                                :rules="[rules.textField('Type')]"
                                 color="primary"
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="8">
+                        <v-col cols="12" sm="6">
                             <v-text-field
-                                v-model="warehouseActionDialogInfo.creatorAddress"
-                                label="Address"
+                                label="Key" dense
                                 color="primary"
+                                :rules="[rules.textField('Key')]"
                             >
                             </v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col cols="12" sm="4">
-                            <v-select
-                                :items="['1', '2', 'Binh Thanh', 'Phu Nhuan']"
-                                hide-details v-model="warehouseActionDialogInfo.creatorDistrict"
-                                label="District" 
-                            ></v-select>
+                        <v-col cols="12">
+                            <v-text-field
+                                label="Name" dense
+                                color="primary"
+                                :rules="[rules.textField('Name')]"
+                            >
+                            </v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="4">
-                            <v-select
-                                :items="citiesList" v-model="warehouseActionDialogInfo.creatorCity"
-                                item-text="cityName"  item-value="cityCode"
-                                hide-details 
-                                label="City"
-                            ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="4" class="d-flex justify-center justify-md-end align-center">
-                            <v-btn color="primary" class="mr-2" small @click="creatorDialog = false">
-                                Close
-                            </v-btn>
-                            <v-btn color="primary" small @click="createWarehouse()">
-                                Create
-                            </v-btn>
+                    </v-row>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-card>
+                                <v-card-title>
+                                    Value List
+                                </v-card-title>
+                                <v-data-table 
+                                    height="90px" class="elevation-1"
+                                    :headers="[{ text: 'Value List', value: 'value', sortable: false }]"
+                                    :items="attributeActionDialogInfo.creatorValues"
+                                    hide-default-header
+                                    hide-default-footer dense
+                                ></v-data-table>
+                            </v-card>
+                            <v-row class="mt-1">
+                                <v-col cols="8">
+                                    <v-text-field label="New Value"
+                                    v-model="attributeActionDialogInfo.newCreatorValue"></v-text-field>
+                                </v-col>
+                                <v-col class="d-flex justify-center align-center px-0" cols="4">
+                                    <v-btn 
+                                        block small 
+                                        color="primary"
+                                        @click="addNewCreatorValue()"
+                                    >Add</v-btn>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-spacer></v-spacer>
+                                <v-col cols="4" class="px-0">
+                                    <v-btn color="primary" block small @click="creatorDialog = false">
+                                        Close
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="4" class="px-0 ml-2">
+                                    <v-btn color="primary" block small @click="createAttribute()">
+                                        Create
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -72,54 +98,86 @@
         <!-- EditorDialog -->
         <v-dialog 
             v-model="editorDialog"
-            max-width="600" 
+            max-width="320" 
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
-                    Warehouse Editor
+                    Attribute Editor
                 </v-card-title>
-                <v-card-text class="pt-4">
-                    <v-row>
-                        <v-col cols="12" sm="4">
+                <v-card-text>
+                    <v-row class="mt-4">
+                        <v-col cols="12" sm="6">
                             <v-text-field
-                                v-model="warehouseActionDialogInfo.editorName"
-                                label="Name"
-                                :rules="[rules.textField('Name')]"
-                                color="primary"
+                                label="Type" v-model="attributeActionDialogInfo.editorType"
+                                :rules="[rules.textField('Type')]"
+                                color="primary" dense
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="8">
+                        <v-col cols="12" sm="6">
                             <v-text-field
-                                v-model="warehouseActionDialogInfo.editorAddress"
-                                label="Address"
-                                color="primary"
+                                label="Key" dense
+                                color="primary" v-model="attributeActionDialogInfo.editorKey"
+                                :rules="[rules.textField('Key')]"
                             >
                             </v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col cols="12" sm="4">
-                            <v-select
-                                :items="['1', '2', 'Binh Thanh', 'Phu Nhuan']"
-                                hide-details v-model="warehouseActionDialogInfo.editorDistrict"
-                                label="District"
-                            ></v-select>
+                        <v-col cols="12">
+                            <v-text-field
+                                label="Name" dense
+                                color="primary" v-model="attributeActionDialogInfo.editorName"
+                                :rules="[rules.textField('Name')]"
+                            >
+                            </v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="4">
-                            <v-select
-                                :items="citiesList" v-model="warehouseActionDialogInfo.editorCity"
-                                item-text="cityName"  item-value="cityCode"
-                                hide-details
-                                label="City"
-                            ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="4" class="d-flex justify-center justify-md-end align-center">
-                            <v-btn color="primary" class="mr-2" small @click="editorDialog = false">
-                                Close
-                            </v-btn>
-                            <v-btn color="primary" small @click="updateWarehouse()">
-                                Update
-                            </v-btn>
+                    </v-row>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-card>
+                                <v-card-title>
+                                    Value List
+                                </v-card-title>
+                                <v-data-table 
+                                    height="90px" class="elevation-1"
+                                    :headers="[{ text: 'Value List', value: 'value', sortable: false }]"
+                                    :items="attributeActionDialogInfo.editorValues"
+                                    hide-default-header
+                                    hide-default-footer dense
+                                >
+                                    <template v-slot:item.value="{ item, index }">
+                                        <v-text-field 
+                                            v-model="item.value" dense @change="onEditorValueChange(item.value, index)"
+                                        ></v-text-field>
+                                    </template>
+                                </v-data-table>
+                            </v-card>
+                            <v-row class="mt-1">
+                                <v-col cols="8">
+                                    <v-text-field label="New Value" dense
+                                    v-model="attributeActionDialogInfo.newEditorValue"></v-text-field>
+                                </v-col>
+                                <v-col class="d-flex justify-center align-center px-0" cols="4">
+                                    <v-btn 
+                                        block small 
+                                        color="primary"
+                                        @click="addNewEditorValue()"
+                                    >Add</v-btn>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-spacer></v-spacer>
+                                <v-col cols="4" class="px-0">
+                                    <v-btn color="primary" block small @click="editorDialog = false">
+                                        Close
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="4" class="px-0 ml-2">
+                                    <v-btn color="primary" block small @click="updateAttribute()">
+                                        Update
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -127,42 +185,21 @@
         </v-dialog>
         <!-- EditorDialog -->
 
-        <!--Advance filter-->
-        <div class="d-none">
-            <v-text-field
-                class="col-md-3"
-                label="Tìm kiếm"
-                color="primary"
-                append-icon="mdi-magnify"
-            >
-            </v-text-field>
-            <v-select
-                class="col-md-3"
-                :items="['District 1', 'Binh Thanh', 'Phu Nhuan', 'Thu Duc']"
-                item-text="name"
-                item-value="value"
-                hide-details
-                label="District"
-            ></v-select>
-            <v-select
-                class="col-md-3"
-                :items="['Ho Chi Minh']"
-                item-text="name"
-                item-value="value"
-                hide-details
-                label="City"
-            ></v-select>
-            <v-select
-                class="col-md-3"
-                :items="['Vietnam']"
-                item-text="name"
-                item-value="value"
-                hide-details
-                label="Country"
-                clearable
-            ></v-select>
-        </div>
-        <!--Advance filter-->
+        <!-- Delete Dialog -->
+        <v-dialog max-width="300" v-model="deleteDialog" >
+            <v-card class="py-4">
+                <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
+                <v-card-actions class="d-flex justify-center ">
+                    <v-btn color="primary" class="mr-2" @click="deleteDialog = false">
+                        Close
+                    </v-btn>
+                    <v-btn color="primary">
+                        Confirm
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- Delete Dialog -->
 
         <!-- Attribute Table -->
         <v-data-table
@@ -171,6 +208,30 @@
             :single-select="false" class="mt-8"
             item-key="code" show-select
         >
+            <!-- Custom value  -->
+            <template v-slot:item.value="{ item }">
+                <v-tooltip color="primary" top>
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn 
+                            small icon 
+                            class="mx-1" 
+                            color="primary"
+                            v-on="on" v-bind="attrs"
+                        >
+                            Show 
+                        </v-btn>
+                    </template>
+                    <span 
+                        class="px-1"
+                        v-for="value in item.value" 
+                        :key="'value_' + value"
+                    >
+                        {{value}}
+                    </span>
+                </v-tooltip>
+            </template>
+            <!-- Custom value  -->
+
             <!-- 3 Actions Buttons -->
             <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
@@ -206,7 +267,7 @@
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
-                            small icon 
+                            small icon @click="openDeleteDialog(item)"
                             class="mx-1" 
                             color="primary"
                             v-on="on" v-bind="attrs"
@@ -234,6 +295,7 @@ export default {
             isLoading: false,
             creatorDialog: false,
             editorDialog: false,
+            deleteDialog: false,
             attributeActionDialogInfo: { 
                 creatorType: "",
                 editorType: "",
@@ -241,14 +303,16 @@ export default {
                 editorName: "",
                 creatorKey: "",
                 editorKey: "",
-                creatorValue: [],
-                editorValue: []
+                newCreatorValue: "",
+                newEditorValue: "",
+                creatorValues: [],
+                editorValues: []
             },
             attributeTableHeaders: [
                 { text: "Type", value: 'type' },
                 { text: 'Name', value: 'name' },
                 { text: 'Key', value: 'key' },
-                { text: 'Value', value: 'value' },
+                { text: 'Value', value: 'value', sortable: false },
                 { text: 'Actions', value: 'actions', sortable: false },
             ],
             attributeTableItems: []
@@ -269,11 +333,11 @@ export default {
                 }
             })
         },
-        createWarehouse() {
+        createAttribute() {
             console.log("create: ", {
             })
         },
-        updateWarehouse() {
+        updateAttribute() {
             console.log("update: ", {
             })
         },
@@ -285,7 +349,29 @@ export default {
             this.attributeActionDialogInfo.editorName = item.name
             this.attributeActionDialogInfo.editorType = item.type
             this.attributeActionDialogInfo.editorKey = item.key
-            this.attributeActionDialogInfo.editorValue = item.value
+            this.attributeActionDialogInfo.editorValues = item.value.map(item => {
+                return { value: item }
+            })
+        },
+        addNewCreatorValue() {
+            if(this.attributeActionDialogInfo.newCreatorValue != "") {
+                const newValue = { value: this.attributeActionDialogInfo.newCreatorValue }
+                this.attributeActionDialogInfo.creatorValues.push(newValue)
+                this.attributeActionDialogInfo.newCreatorValue = ""
+            }
+        },
+        addNewEditorValue() {
+            if(this.attributeActionDialogInfo.newEditorValue != "") {
+                const newValue = { value: this.attributeActionDialogInfo.newEditorValue }
+                this.attributeActionDialogInfo.editorValues.push(newValue)
+                this.attributeActionDialogInfo.newEditorValue = ""
+            }
+        },
+        onEditorValueChange(value, index) {
+            this.attributeActionDialogInfo.editorValues[index] = value
+        },
+        openDeleteDialog(item) {
+            this.deleteDialog = true
         }
     }   
 }

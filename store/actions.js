@@ -28,6 +28,35 @@ export async function getWarehouseList(
     });
 }
 
+export async function createWarehouse(
+    { dispatch, commit },
+    { data, onSuccess, onError }
+) {
+    return await axios({
+      url: `http://data.cams.vn/v1/api/inventory/warehouse`,
+      method: "POST",
+      data,
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data);
+        } else {
+            onError(data);
+        }
+        return data;
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+            onError(e.response.data);
+            }
+        }
+    });
+}
+//----------------Warehouse--------------------//
+
+//----------------Inventory Item--------------------//
 export async function getInventoryItemList(
     { dispatch, commit },
     { onSuccess, onError }
@@ -54,6 +83,88 @@ export async function getInventoryItemList(
     });
 }
 
+export async function createInventoryItem(
+    { dispatch, commit },
+    { data, onSuccess, onError }
+) {
+    return await axios({
+      url: `http://data.cams.vn/v1/api/inventory/item`,
+      method: "POST",
+      data,
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+        return data;
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function updateInventoryItem(
+    { dispatch, commit },
+    { itemId, data, onSuccess, onError }
+) { 
+    return await axios({
+        url: `http://data.cams.vn/v1/api/inventory/item/${itemId}`,
+        method: "PUT",
+        data
+      })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+        return res;
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+            onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function deleteInventoryItem(
+    { dispatch, commit },
+    { itemId, onSuccess, onError }
+) {
+    return await axios({
+      url: `http://data.cams.vn/v1/api/inventory/item/${itemId}`,
+      method: "DELETE",
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+        return data;
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+//----------------Inventory Item--------------------//
+
+//----------------Inventory Item Stock--------------------//
 export async function getInventoryItemStock(
     { dispatch, commit },
     { data, onSuccess, onError }
@@ -85,7 +196,9 @@ export async function getInventoryItemStock(
         }
     });
 }
+//----------------Inventory Item Stock--------------------//
 
+//---------------- Attributes --------------------//
 export async function getAttributeList(
     { dispatch, commit },
     { onSuccess, onError }
@@ -98,7 +211,7 @@ export async function getAttributeList(
     .then(res => {
         const data = res.data;
         if (res.status >= 200 && res.status <= 299) {
-            onSuccess(data);
+            onSuccess(data.data);
         } else {
             onError(data);
         }
@@ -111,7 +224,9 @@ export async function getAttributeList(
         }
     });
 }
+//---------------- Attributes --------------------//
 
+//-------------------- Model -----------------------//
 export async function getModelList(
     { dispatch, commit },
     { onSuccess, onError }
@@ -124,7 +239,7 @@ export async function getModelList(
     .then(res => {
         const data = res.data;
         if (res.status >= 200 && res.status <= 299) {
-            onSuccess(data);
+            onSuccess(data.data);
         } else {
             onError(data);
         }
@@ -137,7 +252,9 @@ export async function getModelList(
         }
     });
 }
+//-------------------- Model -----------------------//
 
+//-------------------- Variant -----------------------//
 export async function getVariantList(
     { dispatch, commit },
     { onSuccess, onError }
@@ -150,7 +267,7 @@ export async function getVariantList(
     .then(res => {
         const data = res.data;
         if (res.status >= 200 && res.status <= 299) {
-            onSuccess(data);
+            onSuccess(data.data);
         } else {
             onError(data);
         }
@@ -163,3 +280,4 @@ export async function getVariantList(
         }
     });
 }
+//-------------------- Variant -----------------------//

@@ -66,7 +66,7 @@
                     <div class="media-overlay">
                         <div class="d-flex justify-end">
                             <v-simple-checkbox 
-                                style="z-index: 3" color="primary" :value="true"
+                                style="z-index: 3"
                             ></v-simple-checkbox>
                         </div>
                         <div class="media-btn">
@@ -114,8 +114,8 @@ export default {
         position: absolute;
         top: 0;
         left: 0;
-        visibility: visible;
-        opacity: 1;
+        visibility: hidden;
+        opacity: 0;
         transition: 0.2s ease;
         z-index: 2;
     }
