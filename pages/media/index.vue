@@ -65,9 +65,9 @@
                     <v-img :src="defaultImg" class="media"></v-img>
                     <div class="media-overlay">
                         <div class="d-flex justify-end">
-                            <v-simple-checkbox 
-                                style="z-index: 3"
-                            ></v-simple-checkbox>
+                            <v-checkbox 
+                                class="my-0 py-0 px-0 col-2" dense :hide-details="true"
+                            ></v-checkbox>
                         </div>
                         <div class="media-btn">
                             <v-btn block small><v-icon left small>mdi-magnify</v-icon>View</v-btn>
@@ -114,8 +114,8 @@ export default {
         position: absolute;
         top: 0;
         left: 0;
-        visibility: hidden;
-        opacity: 0;
+        visibility: visible;
+        opacity: 1;
         transition: 0.2s ease;
         z-index: 2;
     }
