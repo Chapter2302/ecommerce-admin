@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper px-4">
-        <!-- Delete Variant Level Dialog -->
+        <!-- Delete Variant Dialog -->
         <v-dialog max-width="300" v-model="deleteDialog" >
             <v-card class="py-4">
                 <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
@@ -8,13 +8,13 @@
                     <v-btn color="primary" class="mr-2" @click="deleteDialog = false">
                         Close
                     </v-btn>
-                    <v-btn color="primary">
+                    <v-btn color="primary" @click="confirmDeleteVariant()">
                         Confirm
                     </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <!-- Delete Variant Level Dialog -->
+        <!-- Delete Variant Dialog -->
 
         <v-row>
             <v-col cols="12" md="3">
@@ -208,28 +208,29 @@
                             <v-row class="px-4 mt-2">
                                 <v-col cols="12" sm="6" class="pb-0">
                                     <v-select
-                                        :rules="[rules.select('Name')]"
+                                        :rules="[rules.select('Name')]" dense
                                         label="Name" v-model="creator.newAttribute.key"
-                                        :items="attributeList" @input="selectAttributeName('creator')"
-                                        item-value="key" dense
-                                        item-text="name"
+                                        :items="attributeList" 
+                                        item-value="key" item-text="name"
+                                        @input="selectAttributeName('creator')"
                                     ></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="6" class="pb-0">
-                                <v-text-field 
-                                    v-if="creator.newAttribute.type == ''"
-                                    disabled dense label="Value"
-                                ></v-text-field>
-                                <v-text-field
-                                    v-model="creator.newAttribute.value"
-                                    v-if="creator.newAttribute.type == 'input'"
-                                    label="Value" dense
-                                ></v-text-field>
-                                <v-select
-                                    v-model="creator.newAttribute.value"
-                                    v-if="creator.newAttribute.type == 'select'"
-                                    label="Value" dense :items="creator.newAttribute.valueList"
-                                ></v-select>
+                                    <v-text-field 
+                                        v-if="creator.newAttribute.type == ''"
+                                        disabled dense label="Value"
+                                    ></v-text-field>
+                                    <v-text-field
+                                        v-model="creator.newAttribute.value"
+                                        v-if="creator.newAttribute.type == 'input'"
+                                        label="Value" dense
+                                    ></v-text-field>
+                                    <v-select
+                                        v-model="creator.newAttribute.value"
+                                        v-if="creator.newAttribute.type == 'select'" 
+                                        :items="creator.newAttribute.valueList"
+                                        label="Value" dense 
+                                    ></v-select>
                                 </v-col>
                             </v-row>
                             <v-row class="px-4">
@@ -260,7 +261,7 @@
 
 <script>
 import rules from "@/mixins/validationRules";
-import { set, get } from 'lodash'
+import { set, get, remove } from 'lodash'
 export default {
     mixins: [rules],
     async asyncData({ params }) {
@@ -344,7 +345,8 @@ export default {
                     const attribute = this.attributeList.find(attribute => (attribute.key === key))
                     return {
                         name: attribute.name, 
-                        value: get(variant.attributes, key, null)
+                        value: get(variant.attributes, key, null),
+                        key: attribute.key
                     } 
                 }),
                 newAttribute: { 
@@ -355,9 +357,8 @@ export default {
                     valueList: [] 
                 },
             }  
-            console.log('fuck', this.selectedVariant) 
         },
-        toggleDeleteVariantBtn(cardPlace) {
+        toggleDeleteVariantBtn() {
             this.deleteDialog = true
         },
         selectAttributeName(cardPlace) {
@@ -387,7 +388,11 @@ export default {
                     }
                 })
                 if(!isExist) {
-                    this.creator.attributesArray.push({ name: this.creator.newAttribute.name, value: this.creator.newAttribute.value })
+                    this.creator.attributesArray.push({ 
+                        name: this.creator.newAttribute.name, 
+                        value: this.creator.newAttribute.value,
+                        key: this.creator.newAttribute.key
+                    })
                 }
             } else if(cardPlace === 'editor') {
                 set(this.selectedVariant.attributes, this.selectedVariant.newAttribute.key, this.selectedVariant.newAttribute.value)
@@ -398,7 +403,11 @@ export default {
                     }
                 })
                 if(!isExist) {
-                    this.selectedVariant.attributesArray.push({ name: this.selectedVariant.newAttribute.name, value: this.selectedVariant.newAttribute.value })
+                    this.selectedVariant.attributesArray.push({ 
+                        name: this.selectedVariant.newAttribute.name, 
+                        value: this.selectedVariant.newAttribute.value,
+                        key: this.selectedVariant.newAttribute.key 
+                    })
                 }
             }
         },
@@ -413,8 +422,42 @@ export default {
             console.log(this.creator.level)
         },
         deleteAttribute(attribute, cardPlace) {
-            
-        }  
+            if(cardPlace === 'creator') {
+                const newAttributesArray = this.creator.attributesArray.filter(item => {
+                    return item.key != attribute.key
+                })
+                this.creator.attributesArray = newAttributesArray
+                delete this.creator.attributes[attribute.key]
+                
+            } else if(cardPlace === 'editor') {
+                const newAttributesArray = this.selectedVariant.attributesArray.filter(item => {
+                    console.log(item.key, attribute.key)
+                    return item.key != attribute.key
+                })
+                this.selectedVariant.attributesArray = newAttributesArray
+                delete this.selectedVariant.attributes[attribute.key]
+            }
+        },
+        confirmDeleteVariant() {
+            this.variantList = this.variantList.filter(item => {
+                return item.code !== this.selectedVariant.code
+            })
+            this.selectedVariant = {
+                isEmpty: true,
+                code: '',
+                level: '',
+                attributes: {},
+                attributesArray: [],
+                newAttribute: { 
+                    type: '', 
+                    name: '', 
+                    key: '', 
+                    value: '', 
+                    valueList: [] 
+                },
+            }
+            this.deleteDialog = false
+        }
     },   
 }
 </script>
