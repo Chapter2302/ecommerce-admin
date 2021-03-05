@@ -23,11 +23,11 @@
                 <v-card-text class="pt-4">
                     <v-row>
                         <v-col cols="12" sm="6">
-                            <v-text-field
-                                label="Type" dense
-                                :rules="[rules.textField('Type')]"
-                                color="primary"
-                            ></v-text-field>
+                            <v-select
+                                label="Type" v-model="attributeActionDialogInfo.creatorType"
+                                :rules="[rules.select('Type')]" :items="typeList"
+                                color="primary" dense
+                            ></v-select>
                         </v-col>
                         <v-col cols="12" sm="6">
                             <v-text-field
@@ -107,11 +107,11 @@
                 <v-card-text>
                     <v-row class="mt-4">
                         <v-col cols="12" sm="6">
-                            <v-text-field
+                            <v-select
                                 label="Type" v-model="attributeActionDialogInfo.editorType"
-                                :rules="[rules.textField('Type')]"
+                                :rules="[rules.select('Type')]" :items="typeList"
                                 color="primary" dense
-                            ></v-text-field>
+                            ></v-select>
                         </v-col>
                         <v-col cols="12" sm="6">
                             <v-text-field
@@ -308,6 +308,7 @@ export default {
                 creatorValues: [],
                 editorValues: []
             },
+            typeList: ['select', 'input'],
             attributeTableHeaders: [
                 { text: "Type", value: 'type' },
                 { text: 'Name', value: 'name' },

@@ -86,8 +86,7 @@
                                 :rules="[rules.textField('Code')]"
                                 color="primary"
                                 v-model="modelActionDialogInfo.editorCode"
-                            >
-                            </v-text-field>
+                            ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6">
                             <v-text-field
@@ -150,12 +149,12 @@
             :single-select="false" class="mt-8"
             item-key="code" show-select
         >
-            <!-- 3 Actions Buttons -->
-            <template v-slot:item.actions="{ item }">
+            <!-- Variant Buttons -->
+            <template v-slot:item.variantList="{ item }">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
-                            small icon 
+                            small icon :to="`/product/model/${item.id}`"
                             class="mx-1" 
                             color="primary"
                             v-on="on" v-bind="attrs"
@@ -167,6 +166,10 @@
                     </template>
                     <span>Detail</span>
                 </v-tooltip>
+            </template>
+
+            <!-- 3 Actions Buttons -->
+            <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
@@ -222,15 +225,18 @@ export default {
                 creatorStyle: "",
                 editorStyle: "",
                 creatorCategory: "",
-                editorCategory: ""
+                editorCategory: "",
             },
             styleList: [],
             categoryList: [],
+            sizeList: [],
+            colorList: [],
             modelTableHeaders: [
                 { text: "Code", sortable: false, value: 'code' },
                 { text: 'Name', value: 'name' },
                 { text: 'Style', value: 'attributes.style' },
                 { text: 'Category', value: 'attributes.category' },
+                { text: 'Variant', value: 'variantList', sortable: false },
                 { text: 'Actions', value: 'actions', sortable: false },
             ],
             modelTableItems: []
@@ -242,10 +248,11 @@ export default {
     },
     methods: {
         async fetchModelList() {
-            this.isLoading = true;
+            this.isLoading = true
+
             await this.$store.dispatch("getModelList", {
-                onSuccess: async data => {
-                    this.modelTableItems = data
+                onSuccess: async models => {
+                    this.modelTableItems = models
                 },
                 onError: async data => {
                     console.log('model fetch error: ', data)
