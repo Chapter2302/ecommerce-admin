@@ -252,6 +252,33 @@ export async function getModelList(
         }
     });
 }
+
+export async function getModel(
+    { dispatch, commit },
+    { modelId, onSuccess, onError }
+) {
+    return await axios({
+        url: `http://data.cams.vn/v1/api/product/model/${modelId}`,
+        method: "GET",
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
 //-------------------- Model -----------------------//
 
 //-------------------- Variant -----------------------//

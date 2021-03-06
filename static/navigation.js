@@ -148,11 +148,11 @@ const navigationContent = [
         icon: "fas fa-cogs",
         link: "/product/attribute"
       },
-      {
-        name: "Variant",
-        icon: "fas fa-hard-hat",
-        link: "/product/variant" 
-      }
+      // {
+      //   name: "Variant",
+      //   icon: "fas fa-hard-hat",
+      //   link: "/product/variant" 
+      // }
     ]
   },
   {

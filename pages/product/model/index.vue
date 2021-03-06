@@ -149,8 +149,9 @@
             :single-select="false" class="mt-8"
             item-key="code" show-select
         >
-            <!-- Variant Buttons -->
-            <template v-slot:item.variantList="{ item }">
+
+            <!-- 3 Actions Buttons -->
+            <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
@@ -166,14 +167,10 @@
                     </template>
                     <span>Detail</span>
                 </v-tooltip>
-            </template>
-
-            <!-- 3 Actions Buttons -->
-            <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
-                            small icon @click="openEditorDialog(item)"
+                            small icon :to="`/product/model/${item.id}`"
                             class="mx-1" 
                             color="primary"
                             v-on="on" v-bind="attrs"
@@ -236,7 +233,8 @@ export default {
                 { text: 'Name', value: 'name' },
                 { text: 'Style', value: 'attributes.style' },
                 { text: 'Category', value: 'attributes.category' },
-                { text: 'Variant', value: 'variantList', sortable: false },
+                { text: 'Variant Level', value: 'variant_levels' },
+                { text: 'Active', value: 'is_active' },
                 { text: 'Actions', value: 'actions', sortable: false },
             ],
             modelTableItems: []

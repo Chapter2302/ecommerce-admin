@@ -5,7 +5,7 @@
             <v-card class="py-4">
                 <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
                 <v-card-actions class="d-flex justify-center ">
-                    <v-btn color="primary" class="mr-2" @click="deleteDialog = false">
+                    <v-btn color="primary" class="mr-2" @click="cancelDeleteDialogBtn()">
                         Close
                     </v-btn>
                     <v-btn color="primary" @click="confirmDeleteVariant()">
@@ -16,17 +16,248 @@
         </v-dialog>
         <!-- Delete Variant Dialog -->
 
-        <v-row>
-            <v-col cols="12" md="3">
+        <!-- Editor Dialog -->
+        <v-dialog 
+            v-model="editorDialog"
+            max-width="550"
+        >
+            <v-card>
+                <v-card-title class="px-4">
+                    Variant Editor 
+                </v-card-title>
+                <v-divider class="mb-6"></v-divider>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12" sm="6"> 
+                            <v-text-field
+                                label="Code" dense v-model="selectedVariant.code"
+                                :rules="[rules.textField('Code')]"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6"> 
+                            <v-text-field
+                                v-model="selectedVariant.level"
+                                label="Level" type="number" dense
+                                :rules="[rules.textField('Level')]"
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-8">
+                        <v-col cols="12" sm="4" class="pb-0">
+                            <v-select
+                                :rules="[rules.select('Name')]"
+                                label="Attribute Name" v-model="selectedVariant.newAttribute.key"
+                                :items="attributeList" @input="selectAttributeName('variantEditor')"
+                                item-value="key" dense
+                                item-text="name"
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12" sm="4" class="pb-0">
+                            <v-text-field 
+                                v-if="selectedVariant.newAttribute.type == ''"
+                                disabled dense label="Attribute Value"
+                            ></v-text-field>
+                            <v-text-field
+                                v-model="selectedVariant.newAttribute.value"
+                                v-if="selectedVariant.newAttribute.type == 'input'"
+                                label="Attribute Value" dense
+                            ></v-text-field>
+                            <v-select
+                                v-model="selectedVariant.newAttribute.value"
+                                v-if="selectedVariant.newAttribute.type == 'select'"
+                                label="Attribute Value" dense :items="selectedVariant.newAttribute.valueList"
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12" sm="4">
+                            <v-btn 
+                                block small color="primary"
+                                @click="addNewAttribute('variantEditor')"
+                            >Add Or Edit</v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-2">
+                        <v-col cols="12" class="pt-0">
+                            <v-data-table
+                                hide-default-footer
+                                disable-sort dense
+                                :headers="[
+                                    { text: 'Name', value: 'name' },
+                                    { text: 'Value', value: 'value' },
+                                    { text: '', value: 'action', sortable: false }
+                                ]" height="160"
+                                :items="selectedVariant.attributesArray"
+                                class="elevation-1 px-2"
+                            >
+                                <template v-slot:item.name="{ item }">
+                                    <span class="text-caption">{{item.name}}</span>
+                                </template>
+                                <template v-slot:item.value="{ item }">
+                                    <span class="text-caption">{{item.value}}</span>
+                                </template>
+                                <template v-slot:item.action="{ item }">
+                                    <v-icon 
+                                        x-small @click="deleteAttribute(item, 'variantEditor')"
+                                    >fas fa-trash</v-icon>
+                                </template>
+                            </v-data-table>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-divider class="my-6"></v-divider>
+                <v-card-actions class="pb-4 pt-0">
+                    <v-spacer></v-spacer>
+                    <v-btn 
+                        color="primary" class="col-4"
+                        small @click="editorDialog = false"
+                    >Cancel</v-btn>
+                    <v-btn 
+                        class="col-4" color="primary" 
+                        small @click="updateVariant()"
+                    >Update</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- Editor Dialog -->
+
+        <!-- Creator Dialog -->
+        <v-dialog 
+            v-model="creatorDialog"
+            max-width="550"
+        >
+            <v-card>
+                <v-card-title class="px-4">
+                    Variant Creator  <v-icon small class="ml-2">fas fa-plus</v-icon>
+                </v-card-title>
+                <v-divider class="mb-6"></v-divider>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12" sm="6"> 
+                        <v-text-field
+                            v-model="creator.code"
+                            label="Code" dense
+                            :rules="[rules.textField('Code')]"
+                        ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6"> 
+                        <v-text-field
+                            v-model="creator.level"
+                            label="Level" type="number" dense
+                            :rules="[rules.textField('Level')]"
+                        ></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-8">
+                        <v-col cols="12" sm="4" class="pb-0">
+                            <v-select
+                                :rules="[rules.select('Name')]" dense
+                                label="Attribute Name" v-model="creator.newAttribute.key"
+                                :items="attributeList" 
+                                item-value="key" item-text="name"
+                                @input="selectAttributeName('variantCreator')"
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12" sm="4" class="pb-0">
+                            <v-text-field 
+                                v-if="creator.newAttribute.type == ''"
+                                disabled dense label="Attribute Value"
+                            ></v-text-field>
+                            <v-text-field
+                                v-model="creator.newAttribute.value"
+                                v-if="creator.newAttribute.type == 'input'"
+                                label="Attribute Value" dense
+                            ></v-text-field>
+                            <v-select
+                                v-model="creator.newAttribute.value"
+                                v-if="creator.newAttribute.type == 'select'" 
+                                :items="creator.newAttribute.valueList"
+                                label="Attribute Value" dense 
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12" sm="4">
+                            <v-btn 
+                                block small color="primary"
+                                @click="addNewAttribute('variantCreator')"
+                            >Add Or Edit</v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-2">
+                        <v-col cols="12" class="pt-0">
+                            <v-data-table
+                                hide-default-footer
+                                disable-sort dense
+                                :headers="[
+                                    { text: 'Name', value: 'name' },
+                                    { text: 'Value', value: 'value' },
+                                    { text: '', value: 'action', sortable: false }
+                                ]" height="160"
+                                :items="creator.attributesArray"
+                                class="elevation-1 px-2"
+                            >
+                                <template v-slot:item.action="{ item }">
+                                    <v-icon 
+                                        x-small @click="deleteAttribute(item, 'variantCreator')"
+                                    >fas fa-trash</v-icon>
+                                </template>
+                            </v-data-table>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-divider class="my-6"></v-divider>
+                <v-card-actions class="d-flex pb-4 pt-0">
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        small class="col-4"
+                        color="primary" @click="creatorDialog = false"
+                    >
+                        Cancel
+                    </v-btn>
+                    <v-btn 
+                        small class="col-4"
+                        color="primary"
+                        @click="createNewVariant()"
+                    >Create</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- Creator Dialog -->
+        
+        <v-row class="mt-8">
+            <v-col cols="12" md="6">
                 <v-card>
-                    <v-card-title>
+                    <v-card-title class="d-flex">
                         Variant List
+                        <v-spacer></v-spacer>
+                        <v-btn 
+                            v-if="!isMultipleChoice"
+                            small color="primary" class="mr-1" 
+                            @click="isMultipleChoice = true"
+                        >
+                            Choose <v-icon small class="ml-2">fas fa-check-double</v-icon>
+                        </v-btn>
+                        <v-btn 
+                            small color="primary" v-if="!isMultipleChoice"
+                            @click="clickCreateNewVariantBtn(1)"
+                        >
+                            Create <v-icon small class="ml-2">fas fa-plus</v-icon>
+                        </v-btn>
+                        <v-btn 
+                            small color="primary" outlined
+                            v-if="isMultipleChoice" @click="isMultipleChoice = false"
+                        > 
+                            Cancel
+                        </v-btn>
+                        <v-btn 
+                            small color="primary" class="ml-2"
+                            v-if="isMultipleChoice"
+                        > 
+                            Delete
+                        </v-btn>
                     </v-card-title>
                     <v-data-table
                         :headers="[{ text: '', value: 'code' }]"
-                        :items="variantList"
+                        :items="variantTableItems"
                         item-key="code"
-                        group-by="level" :single-select="true"
+                        group-by="level" :single-select="!isMultipleChoice"
                         hide-default-header
                         hide-default-footer
                     >
@@ -39,17 +270,54 @@
                             </th>
                         </template>
                         <template v-slot:item="{ item, isSelected, select }">
-                            <tr :style="{'background-color': isSelected ? '#eeeeee' : '#ffffff'}">
+                            <tr 
+                                v-if="!selectedVariant.isEmpty || item.level == 1" 
+                                :style="{'background-color': isSelected ? '#eeeeee' : '#ffffff'}"
+                            >
                                 <td class="d-flex align-center" style="cursor: pointer" @click="clickSelectVariant(select, item)">
-                                    <!-- <v-simple-checkbox
+                                    <v-simple-checkbox
+                                        v-if="isMultipleChoice"
                                         :value="isSelected" class="mr-2"
                                         @input="select"
-                                    ></v-simple-checkbox> -->
+                                    ></v-simple-checkbox>
                                     {{item.code}}
-                                    <!-- <v-spacer></v-spacer>
-                                    <v-icon small @click="toggleDeleteVariantBtn(item)">
-                                        fas fa-trash
-                                    </v-icon> -->
+                                    <v-spacer></v-spacer>
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-btn 
+                                                small icon color="primary" 
+                                                v-on="on" v-bind="attrs"
+                                                @click="clickCreateNewVariantBtn(item.level)"
+                                            >
+                                                <v-icon small>
+                                                    fas fa-plus
+                                                </v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Add next-level variant </span>
+                                    </v-tooltip>
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-btn 
+                                                small icon color="primary"
+                                                v-on="on" v-bind="attrs"
+                                                @click="editorDialog = true"
+                                            >
+                                                <v-icon small>
+                                                    fas fa-pen
+                                                </v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Edit </span>
+                                    </v-tooltip>
+                                    <v-btn 
+                                        small icon color="primary"
+                                        @click="deleteDialog = true"
+                                    >
+                                        <v-icon small>
+                                            fas fa-trash
+                                        </v-icon>
+                                    </v-btn>
                                 </td>
                             </tr>
                         </template>
@@ -57,201 +325,91 @@
                 </v-card>
             </v-col>
 
-            <v-col cols="12" md="9">
+            <v-col cols="12" md="6">
                 <v-row>
-                    <!-- Variant Editor Card  -->
-                    <v-col cols="12" md="6">
-                        <v-card :disabled="selectedVariant.isEmpty">
-                            <v-card-title class="px-4">
-                                Variant Editor  <v-icon small class="ml-2">fas fa-pen</v-icon>
-                            </v-card-title>
-                            <v-divider class="mb-6"></v-divider>
-                            <v-row class="px-4">
-                                <v-col cols="12" sm="6"> 
-                                    <v-text-field
-                                        label="Code" dense v-model="selectedVariant.code"
-                                        :rules="[rules.textField('Code')]"
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6"> 
-                                    <v-text-field
-                                        v-model="selectedVariant.level"
-                                        label="Level" type="number" dense
-                                        :rules="[rules.textField('Level')]"
-                                    ></v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row class="px-4 mt-8">
-                                <v-col cols="12" class="pt-0">
-                                    <v-data-table
-                                        hide-default-footer
-                                        disable-sort dense
-                                        :headers="[
-                                            { text: 'Name', value: 'name' },
-                                            { text: 'Value', value: 'value' },
-                                            { text: '', value: 'action', sortable: false }
-                                        ]" height="160"
-                                        :items="selectedVariant.attributesArray"
-                                        class="elevation-1 px-2"
-                                    >
-                                        <template v-slot:item.name="{ item }">
-                                            <span class="text-caption">{{item.name}}</span>
-                                        </template>
-                                        <template v-slot:item.value="{ item }">
-                                            <span class="text-caption">{{item.value}}</span>
-                                        </template>
-                                        <template v-slot:item.action="{ item }">
-                                            <v-icon 
-                                                x-small @click="deleteAttribute(item, 'editor')"
-                                            >fas fa-trash</v-icon>
-                                        </template>
-                                    </v-data-table>
-                                </v-col>
-                            </v-row>
-                            <v-row class="px-4 mt-2">
-                                <v-col cols="12" sm="6" class="pb-0">
-                                    <v-select
-                                        :rules="[rules.select('Name')]"
-                                        label="Name" v-model="selectedVariant.newAttribute.key"
-                                        :items="attributeList" @input="selectAttributeName('editor')"
-                                        item-value="key" dense
-                                        item-text="name"
-                                    ></v-select>
-                                </v-col>
-                                <v-col cols="12" sm="6" class="pb-0">
-                                    <v-text-field 
-                                        v-if="selectedVariant.newAttribute.type == ''"
-                                        disabled dense label="Value"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        v-model="selectedVariant.newAttribute.value"
-                                        v-if="selectedVariant.newAttribute.type == 'input'"
-                                        label="Value" dense
-                                    ></v-text-field>
-                                    <v-select
-                                        v-model="selectedVariant.newAttribute.value"
-                                        v-if="selectedVariant.newAttribute.type == 'select'"
-                                        label="Value" dense :items="selectedVariant.newAttribute.valueList"
-                                    ></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row class="px-4">
-                                <v-col cols="12">
-                                    <v-btn 
-                                        block small color="primary"
-                                        @click="addNewAttribute('editor')"
-                                    >Add Attribute</v-btn>
-                                </v-col>
-                            </v-row>
-                            <v-divider class="my-6"></v-divider>
-                            <v-card-actions class="px-4 pb-4 pt-0">
-                                <v-row>
-                                    <v-col cols="6" class="pr-1">
-                                        <v-btn 
-                                            block color="primary" 
-                                            small @click="toggleDeleteVariantBtn()"
-                                        >Delete</v-btn>
-                                    </v-col>
-                                    <v-col cols="6" class="pl-1">
-                                        <v-btn block color="primary" small>Update</v-btn>
-                                    </v-col>
-                                </v-row>
-                            </v-card-actions>
-                        </v-card>
+                    <v-col cols="12" sm="4">
+                        <v-text-field
+                            label="Code" dense
+                            v-model="thisModel.code"
+                        ></v-text-field>
                     </v-col>
-                    <!-- Variant Editor Card  -->
-
-                    <!-- Variant Creator Card  -->
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title class="px-4">
-                                Variant Creator  <v-icon small class="ml-2">fas fa-plus</v-icon>
-                            </v-card-title>
-                            <v-divider class="mb-6"></v-divider>
-                            <v-row class="px-4">
-                                <v-col cols="12" sm="6"> 
-                                <v-text-field
-                                    v-model="creator.code"
-                                    label="Code" dense
-                                    :rules="[rules.textField('Code')]"
-                                ></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6"> 
-                                <v-text-field
-                                    v-model="creator.level"
-                                    label="Level" type="number" dense
-                                    :rules="[rules.textField('Level')]"
-                                ></v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row class="px-4 mt-8">
-                                <v-col cols="12" class="pt-0">
-                                    <v-data-table
-                                        hide-default-footer
-                                        disable-sort dense
-                                        :headers="[
-                                            { text: 'Name', value: 'name' },
-                                            { text: 'Value', value: 'value' },
-                                            { text: '', value: 'action', sortable: false }
-                                        ]" height="160"
-                                        :items="creator.attributesArray"
-                                        class="elevation-1 px-2"
-                                    >
-                                        <template v-slot:item.action="{ item }">
-                                            <v-icon 
-                                                x-small @click="deleteAttribute(item, 'creator')"
-                                            >fas fa-trash</v-icon>
-                                        </template>
-                                    </v-data-table>
-                                </v-col>
-                            </v-row>
-                            <v-row class="px-4 mt-2">
-                                <v-col cols="12" sm="6" class="pb-0">
-                                    <v-select
-                                        :rules="[rules.select('Name')]" dense
-                                        label="Name" v-model="creator.newAttribute.key"
-                                        :items="attributeList" 
-                                        item-value="key" item-text="name"
-                                        @input="selectAttributeName('creator')"
-                                    ></v-select>
-                                </v-col>
-                                <v-col cols="12" sm="6" class="pb-0">
-                                    <v-text-field 
-                                        v-if="creator.newAttribute.type == ''"
-                                        disabled dense label="Value"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        v-model="creator.newAttribute.value"
-                                        v-if="creator.newAttribute.type == 'input'"
-                                        label="Value" dense
-                                    ></v-text-field>
-                                    <v-select
-                                        v-model="creator.newAttribute.value"
-                                        v-if="creator.newAttribute.type == 'select'" 
-                                        :items="creator.newAttribute.valueList"
-                                        label="Value" dense 
-                                    ></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row class="px-4">
-                                <v-col cols="12">
-                                    <v-btn 
-                                        block small color="primary"
-                                        @click="addNewAttribute('creator')"
-                                    >Add Attribute</v-btn>
-                                </v-col>
-                            </v-row>
-                            <v-divider class="my-6"></v-divider>
-                            <v-card-actions class="px-4 pb-4 pt-0">
-                                <v-btn 
-                                    block small 
-                                    color="primary"
-                                    @click="createNewVariant()"
-                                >Create New Variant</v-btn>
-                            </v-card-actions>
-                        </v-card>
+                    <v-col cols="12" sm="4">
+                        <v-text-field
+                            label="Name" dense
+                            v-model="thisModel.name"
+                        ></v-text-field>
                     </v-col>
-                    <!-- Variant Creator Card  -->
+                    <v-col cols="12" sm="4">
+                        <v-select
+                            label="Active" dense 
+                            :items="[  
+                                { name: 'True', key: true },
+                                { name: 'False', key: false }
+                            ]" 
+                            item-text="name" item-value="key"
+                            v-model="thisModel.isActive"
+                        ></v-select>
+                    </v-col>
+                </v-row>
+                <v-row class="mt-4">
+                        <v-col cols="12" sm="4" class="pb-0">
+                            <v-select
+                                :rules="[rules.select('Name')]"
+                                label="Attribute Name" v-model="thisModel.newAttribute.key"
+                                :items="attributeList" @input="selectAttributeName('modelEditor')"
+                                item-value="key" dense
+                                item-text="name"
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12" sm="4" class="pb-0">
+                            <v-text-field 
+                                v-if="thisModel.newAttribute.type == ''"
+                                disabled dense label="Attribute Value"
+                            ></v-text-field>
+                            <v-text-field
+                                v-model="thisModel.newAttribute.value"
+                                v-if="thisModel.newAttribute.type == 'input'"
+                                label="Attribute Value" dense
+                            ></v-text-field>
+                            <v-select
+                                v-model="thisModel.newAttribute.value"
+                                v-if="thisModel.newAttribute.type == 'select'"
+                                label="Attribute Value" dense :items="thisModel.newAttribute.valueList"
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12" sm="4">
+                            <v-btn 
+                                block small color="primary"
+                                @click="addNewAttribute('modelEditor')"
+                            >Add Or Edit</v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-row class="my-6">
+                        <v-col cols="12" class="pt-0">
+                            <v-data-table
+                                hide-default-footer
+                                disable-sort dense
+                                :headers="[
+                                    { text: 'Name', value: 'name' },
+                                    { text: 'Value', value: 'value' },
+                                    { text: '', value: 'action', sortable: false }
+                                ]" height="160"
+                                :items="thisModel.attributesArray"
+                                class="elevation-1 px-2"
+                            >
+                                <template v-slot:item.action="{ item }">
+                                    <v-icon 
+                                        x-small @click="deleteAttribute(item, 'modelEditor')"
+                                    >fas fa-trash</v-icon>
+                                </template>
+                            </v-data-table>
+                        </v-col>
+                    </v-row>
+                <v-row class="d-flex">
+                    <v-col cols="12" sm="6"></v-col>
+                    <v-col cols="12" sm="6">
+                        <v-btn block color="primary">Update Model</v-btn>
+                    </v-col>
                 </v-row>
             </v-col>
             
@@ -270,8 +428,26 @@ export default {
     },
     data() {
         return {
-            isEditable: false,
+            isMultipleChoice: false,
+            editorDialog: false,
+            creatorDialog: false,
+            thisModel: {
+                code: "",
+                name: "",
+                variantLevels: "",
+                isActive: "",
+                attribute: {},
+                attributesArray: [],
+                newAttribute: { 
+                    type: '', 
+                    name: '', 
+                    key: '', 
+                    value: '', 
+                    valueList: [] 
+                },
+            },
             variantList: [],
+            variantTableItems: [],
             attributeList: [],
             selectedVariant: {
                 isEmpty: true,
@@ -305,9 +481,43 @@ export default {
     },
     async created() {
         await this.fetchAttributesLists()
+        await this.fetchModelById()
         await this.fetchVariantList()
     },
     methods: {
+        async fetchModelById() {
+            const modelId = this.modelId
+            await this.$store.dispatch("getModel", {
+                modelId,
+                onSuccess: async model => {
+                    this.thisModel = {
+                        code: model.code,
+                        name: model.name,
+                        variantLevels: model.variant_levels,
+                        isActive: model.is_active,
+                        attributes: model.attributes,
+                        attributesArray: Object.keys(model.attributes).map(key => {
+                            const attribute = this.attributeList.find(attribute => (attribute.key === key))
+                            return {
+                                name: attribute.name, 
+                                value: get(model.attributes, key, null),
+                                key: attribute.key
+                            }
+                        }),
+                        newAttribute: { 
+                            type: '', 
+                            name: '', 
+                            key: '', 
+                            value: '', 
+                            valueList: [] 
+                        },
+                    }
+                },
+                onError: async data => {
+                    console.log('model fetch error: ', data)
+                }
+            })
+        },
         async fetchVariantList() {
             await this.$store.dispatch("getVariantList", {
                 onSuccess: async variants => {
@@ -316,6 +526,9 @@ export default {
                         if(modelId === variant.model_id) {
                             this.variantList.push(variant)
                         }
+                    })
+                    this.variantTableItems = variants.filter(variant => {
+                        return variant.level === 1 && variant.model_id === modelId
                     })
                 },
                 onError: async data => {
@@ -356,30 +569,37 @@ export default {
                     value: '', 
                     valueList: [] 
                 },
-            }  
-        },
-        toggleDeleteVariantBtn() {
-            this.deleteDialog = true
+            } 
+            this.variantTableItems = this.variantList.filter(item => {
+                return item.code.includes(variant.code) || item.level <= variant.level
+            }) 
         },
         selectAttributeName(cardPlace) {
-            if(cardPlace === 'creator') {
+            if(cardPlace === 'variantCreator') {
                 const newAttribute = this.attributeList.find(attribute => {
                     return attribute.key == this.creator.newAttribute.key
                 })
                 this.creator.newAttribute.type = newAttribute.type
                 this.creator.newAttribute.name = newAttribute.name
                 this.creator.newAttribute.valueList = newAttribute.value
-            } else if(cardPlace === 'editor') {
+            } else if(cardPlace === 'variantEditor') {
                 const newAttribute = this.attributeList.find(attribute => {
                     return attribute.key == this.selectedVariant.newAttribute.key
                 })
                 this.selectedVariant.newAttribute.type = newAttribute.type
                 this.selectedVariant.newAttribute.name = newAttribute.name
                 this.selectedVariant.newAttribute.valueList = newAttribute.value
+            } else if(cardPlace === 'modelEditor') { 
+                const newAttribute = this.attributeList.find(attribute => {
+                    return attribute.key == this.thisModel.newAttribute.key
+                })
+                this.thisModel.newAttribute.type = newAttribute.type
+                this.thisModel.newAttribute.name = newAttribute.name
+                this.thisModel.newAttribute.valueList = newAttribute.value
             }
         },
         addNewAttribute(cardPlace) {
-            if(cardPlace === 'creator') {
+            if(cardPlace === 'variantCreator') {
                 set(this.creator.attributes, this.creator.newAttribute.key, this.creator.newAttribute.value)
                 const isExist = this.creator.attributesArray.find(attribute => {
                     if(attribute.name == this.creator.newAttribute.name) {
@@ -394,7 +614,7 @@ export default {
                         key: this.creator.newAttribute.key
                     })
                 }
-            } else if(cardPlace === 'editor') {
+            } else if(cardPlace === 'variantEditor') {
                 set(this.selectedVariant.attributes, this.selectedVariant.newAttribute.key, this.selectedVariant.newAttribute.value)
                 const isExist = this.selectedVariant.attributesArray.find(attribute => {
                     if(attribute.name == this.selectedVariant.newAttribute.name) {
@@ -409,7 +629,26 @@ export default {
                         key: this.selectedVariant.newAttribute.key 
                     })
                 }
+            } else if(cardPlace === 'modelEditor') {
+                set(this.thisModel.attributes, this.thisModel.newAttribute.key, this.thisModel.newAttribute.value)
+                const isExist = this.thisModel.attributesArray.find(attribute => {
+                    if(attribute.name == this.thisModel.newAttribute.name) {
+                        attribute.value = this.thisModel.newAttribute.value
+                        return true
+                    }
+                })
+                if(!isExist) {
+                    this.thisModel.attributesArray.push({ 
+                        name: this.thisModel.newAttribute.name, 
+                        value: this.thisModel.newAttribute.value,
+                        key: this.thisModel.newAttribute.key 
+                    })
+                }
             }
+        },
+        clickCreateNewVariantBtn(level) {
+            this.creator.level = level + 1
+            this.creatorDialog = true
         },
         createNewVariant() {
             const newVariant = {
@@ -419,33 +658,84 @@ export default {
                 level: Number(this.creator.level)
             }
             this.variantList.push(newVariant)
-            console.log(this.creator.level)
+            this.variantTableItems.push(newVariant)
+            this.creatorDialog = false
+        },
+        updateVariant() {
+            this.variantList = this.variantList.map(variant => {
+                if(variant.code === this.selectedVariant.code) {
+                    return {
+                        ...variant,
+                        code: this.selectedVariant.code,
+                        level: this.selectedVariant.level,
+                        attributes: this.selectedVariant.attributes,   
+                    }
+                }
+                return variant
+            })
+            this.variantTableItems = this.variantTableItems.map(variant => {
+                if(variant.code === this.selectedVariant.code) {
+                    return {
+                        ...variant,
+                        code: this.selectedVariant.code,
+                        level: this.selectedVariant.level,
+                        attributes: this.selectedVariant.attributes,   
+                    }
+                }
+                return variant
+            })
+            this.editorDialog = false
         },
         deleteAttribute(attribute, cardPlace) {
-            if(cardPlace === 'creator') {
+            if(cardPlace === 'variantCreator') {
                 const newAttributesArray = this.creator.attributesArray.filter(item => {
                     return item.key != attribute.key
                 })
                 this.creator.attributesArray = newAttributesArray
                 delete this.creator.attributes[attribute.key]
                 
-            } else if(cardPlace === 'editor') {
+            } else if(cardPlace === 'variantEditor') {
                 const newAttributesArray = this.selectedVariant.attributesArray.filter(item => {
-                    console.log(item.key, attribute.key)
                     return item.key != attribute.key
                 })
                 this.selectedVariant.attributesArray = newAttributesArray
                 delete this.selectedVariant.attributes[attribute.key]
+            } else if(cardPlace === 'modelEditor') {
+                const newAttributesArray = this.thisModel.attributesArray.filter(item => {
+                    return item.key != attribute.key
+                })
+                this.thisModel.attributesArray = newAttributesArray
+                delete this.thisModel.attributes[attribute.key]
             }
         },
         confirmDeleteVariant() {
             this.variantList = this.variantList.filter(item => {
-                return item.code !== this.selectedVariant.code
+                return !item.code.includes(this.selectedVariant.code) 
+            })
+            this.variantTableItems = this.variantTableItems.filter(item => {
+                return !item.code.includes(this.selectedVariant.code) 
             })
             this.selectedVariant = {
                 isEmpty: true,
                 code: '',
                 level: '',
+                attributes: {},
+                attributesArray: [],
+                newAttribute: { 
+                    type: '', 
+                    name: '', 
+                    key: '', 
+                    value: '', 
+                    valueList: [] 
+                },
+            }
+            this.deleteDialog = false
+        },
+        cancelDeleteDialogBtn() {
+            this.selectedVariant = {
+                isEmpty: true,
+                code: "",
+                level: "",
                 attributes: {},
                 attributesArray: [],
                 newAttribute: { 

@@ -308,7 +308,7 @@ export default {
                 creatorValues: [],
                 editorValues: []
             },
-            typeList: ['select', 'input'],
+            typeList: ['select', 'input', 'multi'],
             attributeTableHeaders: [
                 { text: "Type", value: 'type' },
                 { text: 'Name', value: 'name' },
