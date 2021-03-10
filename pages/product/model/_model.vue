@@ -223,109 +223,6 @@
         
         <v-row class="mt-8">
             <v-col cols="12" md="6">
-                <v-card>
-                    <v-card-title class="d-flex">
-                        Variant List
-                        <v-spacer></v-spacer>
-                        <v-btn 
-                            v-if="!isMultipleChoice"
-                            small color="primary" class="mr-1" 
-                            @click="isMultipleChoice = true"
-                        >
-                            Choose <v-icon small class="ml-2">fas fa-check-double</v-icon>
-                        </v-btn>
-                        <v-btn 
-                            small color="primary" v-if="!isMultipleChoice"
-                            @click="clickCreateNewVariantBtn(1)"
-                        >
-                            Create <v-icon small class="ml-2">fas fa-plus</v-icon>
-                        </v-btn>
-                        <v-btn 
-                            small color="primary" outlined
-                            v-if="isMultipleChoice" @click="isMultipleChoice = false"
-                        > 
-                            Cancel
-                        </v-btn>
-                        <v-btn 
-                            small color="primary" class="ml-2"
-                            v-if="isMultipleChoice"
-                        > 
-                            Delete
-                        </v-btn>
-                    </v-card-title>
-                    <v-data-table
-                        :headers="[{ text: '', value: 'code' }]"
-                        :items="variantTableItems"
-                        item-key="code"
-                        group-by="level" :single-select="!isMultipleChoice"
-                        hide-default-header
-                        hide-default-footer
-                    >
-                        <template v-slot:group.header="{items, isOpen, toggle}">
-                            <th class="d-flex align-center">
-                                <v-icon @click="toggle" class="mr-1"
-                                >{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}
-                                </v-icon>
-                                LEVEL {{ items[0].level }}
-                            </th>
-                        </template>
-                        <template v-slot:item="{ item, isSelected, select }">
-                            <tr 
-                                v-if="!selectedVariant.isEmpty || item.level == 1" 
-                                :style="{'background-color': isSelected ? '#eeeeee' : '#ffffff'}"
-                            >
-                                <td class="d-flex align-center" style="cursor: pointer" @click="clickSelectVariant(select, item)">
-                                    <v-simple-checkbox
-                                        v-if="isMultipleChoice"
-                                        :value="isSelected" class="mr-2"
-                                        @input="select"
-                                    ></v-simple-checkbox>
-                                    {{item.code}}
-                                    <v-spacer></v-spacer>
-                                    <v-tooltip bottom>
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-btn 
-                                                small icon color="primary" 
-                                                v-on="on" v-bind="attrs"
-                                                @click="clickCreateNewVariantBtn(item.level)"
-                                            >
-                                                <v-icon small>
-                                                    fas fa-plus
-                                                </v-icon>
-                                            </v-btn>
-                                        </template>
-                                        <span>Add next-level variant </span>
-                                    </v-tooltip>
-                                    <v-tooltip bottom>
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-btn 
-                                                small icon color="primary"
-                                                v-on="on" v-bind="attrs"
-                                                @click="editorDialog = true"
-                                            >
-                                                <v-icon small>
-                                                    fas fa-pen
-                                                </v-icon>
-                                            </v-btn>
-                                        </template>
-                                        <span>Edit </span>
-                                    </v-tooltip>
-                                    <v-btn 
-                                        small icon color="primary"
-                                        @click="deleteDialog = true"
-                                    >
-                                        <v-icon small>
-                                            fas fa-trash
-                                        </v-icon>
-                                    </v-btn>
-                                </td>
-                            </tr>
-                        </template>
-                    </v-data-table>
-                </v-card>
-            </v-col>
-
-            <v-col cols="12" md="6">
                 <v-row>
                     <v-col cols="12" sm="4">
                         <v-text-field
@@ -412,7 +309,114 @@
                     </v-col>
                 </v-row>
             </v-col>
-            
+
+            <v-col cols="12" md="6">
+                <v-card>
+                    <v-card-title class="d-flex">
+                        Variant List
+                        <v-spacer></v-spacer>
+                        <v-btn 
+                            v-if="!isMultipleChoice"
+                            small color="primary" class="mr-1" 
+                            @click="isMultipleChoice = true"
+                        >
+                            Choose <v-icon small class="ml-2">fas fa-check-double</v-icon>
+                        </v-btn>
+                        <v-btn 
+                            small color="primary" v-if="!isMultipleChoice"
+                            @click="clickCreateNewVariantBtn(1)"
+                        >
+                            Create <v-icon small class="ml-2">fas fa-plus</v-icon>
+                        </v-btn>
+                        <v-btn 
+                            small color="primary" outlined
+                            v-if="isMultipleChoice" @click="isMultipleChoice = false"
+                        > 
+                            Cancel
+                        </v-btn>
+                        <v-btn 
+                            small color="primary" class="ml-2"
+                            v-if="isMultipleChoice"
+                        > 
+                            Delete
+                        </v-btn>
+                    </v-card-title>
+                    <v-data-table
+                        :headers="[{ text: '', value: 'code' }]"
+                        :items="variantTableItems"
+                        item-key="code" dense single-select
+                        group-by="level" 
+                        hide-default-header
+                        hide-default-footer
+                    >
+                        <template v-slot:group.header="{items, isOpen, toggle}">
+                            <th class="d-flex align-center">
+                                <v-icon @click="toggle" class="mr-1"
+                                >{{  isOpen ? 'mdi-minus' : 'mdi-plus' }}
+                                </v-icon>
+                                LEVEL {{ items[0].level }}
+                            </th>
+                        </template>
+                        <template v-slot:item="{ item }">
+                            <tr 
+                                v-if="!selectedVariant.isEmpty || item.level == 1" 
+                                :style="{'background-color': item.isChecked ? '#eeeeee' : '#ffffff'}"
+                            >
+                                <td 
+                                    class="d-flex align-center" 
+                                    style="cursor: pointer"
+                                >
+                                    <v-simple-checkbox
+                                        :value="item.isChecked" class="mr-2"
+                                        @input="clickSelectVariant(item)" color="primary"
+                                    ></v-simple-checkbox>
+                                    {{item.code}}
+                                    <v-spacer></v-spacer>
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-btn 
+                                                :disabled="!item.isChecked"
+                                                small icon color="primary" 
+                                                v-on="on" v-bind="attrs"
+                                                @click="clickCreateNewVariantBtn(item.level)"
+                                            >
+                                                <v-icon small>
+                                                    fas fa-plus
+                                                </v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Add next-level variant </span>
+                                    </v-tooltip>
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-btn 
+                                                :disabled="!item.isChecked"
+                                                small icon color="primary"
+                                                v-on="on" v-bind="attrs"
+                                                @click="editorDialog = true"
+                                            >
+                                                <v-icon small>
+                                                    fas fa-pen
+                                                </v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <span>Edit </span>
+                                    </v-tooltip>
+                                    <v-btn 
+                                        :disabled="!item.isChecked"
+                                        small icon color="primary"
+                                        @click="deleteDialog = true"
+                                    >
+                                        <v-icon small>
+                                            fas fa-trash
+                                        </v-icon>
+                                    </v-btn>
+                                </td>
+                            </tr>
+                        </template>
+                    </v-data-table>
+                </v-card>
+            </v-col>
         </v-row>
     </div> 
 </template>
@@ -524,6 +528,7 @@ export default {
                     const modelId = this.modelId
                     variants.forEach(variant => {
                         if(modelId === variant.model_id) {
+                            variant.isChecked = false
                             this.variantList.push(variant)
                         }
                     })
@@ -547,32 +552,99 @@ export default {
                 }
             })
         },
-        clickSelectVariant(select, variant) {
-            select()
-            this.selectedVariant = {
-                isEmpty: false,
-                code: variant.code,
-                level: variant.level,
-                attributes: variant.attributes,
-                attributesArray: Object.keys(variant.attributes).map(key => {
-                    const attribute = this.attributeList.find(attribute => (attribute.key === key))
-                    return {
-                        name: attribute.name, 
-                        value: get(variant.attributes, key, null),
-                        key: attribute.key
-                    } 
-                }),
-                newAttribute: { 
-                    type: '', 
-                    name: '', 
-                    key: '', 
-                    value: '', 
-                    valueList: [] 
-                },
+        clickSelectVariant(variant) {
+            if(!variant.isChecked) {
+                this.selectedVariant = {
+                    isEmpty: false,
+                    code: variant.code,
+                    level: variant.level,
+                    attributes: variant.attributes,
+                    attributesArray: Object.keys(variant.attributes).map(key => {
+                        const attribute = this.attributeList.find(attribute => (attribute.key === key))
+                        return {
+                            name: attribute.name, 
+                            value: get(variant.attributes, key, null),
+                            key: attribute.key
+                        } 
+                    }),
+                    newAttribute: { 
+                        type: '', 
+                        name: '', 
+                        key: '', 
+                        value: '', 
+                        valueList: [] 
+                    },
+                } 
+                this.variantTableItems = this.variantList.filter(item => {
+                    if(item.code == variant.code)
+                        item.isChecked = true
+                    else
+                        item.isChecked = false
+                    if(item.level <= variant.level) {
+                        return variant.code.includes(item.code)
+                    } else {
+                        return item.code.includes(variant.code) && item.level == variant.level + 1
+                    }
+                })
             } 
-            this.variantTableItems = this.variantList.filter(item => {
-                return item.code.includes(variant.code) || item.level <= variant.level
-            }) 
+            else {
+                if(variant.level == 1) {
+                    this.variantTableItems = this.variantList.filter(item => {
+                        item.isChecked = false
+                        return item.level == 1
+                    })
+                    this.selectedVariant = {
+                        isEmpty: true,
+                        code: "",
+                        level: "",
+                        attributes: {},
+                        attributesArray: [],
+                        newAttribute: { 
+                            type: '', 
+                            name: '', 
+                            key: '', 
+                            value: '', 
+                            valueList: [] 
+                        }
+                    }
+                } else {
+                    const newSelectedVariant = this.variantList.find(item => {
+                        return item.level == variant.level - 1 && variant.code.includes(item.code)
+                    })
+                    this.selectedVariant = {
+                        isEmpty: false,
+                        code: newSelectedVariant.code,
+                        level: newSelectedVariant.level,
+                        attributes: newSelectedVariant.attributes,
+                        attributesArray: Object.keys(newSelectedVariant.attributes).map(key => {
+                            const attribute = this.attributeList.find(attribute => (attribute.key === key))
+                            return {
+                                name: attribute.name, 
+                                value: get(newSelectedVariant.attributes, key, null),
+                                key: attribute.key
+                            } 
+                        }),
+                        newAttribute: { 
+                            type: '', 
+                            name: '', 
+                            key: '', 
+                            value: '', 
+                            valueList: [] 
+                        },
+                    }
+                    this.variantTableItems = this.variantList.filter(item => {
+                        item.isChecked = false
+                        if(item.level < variant.level) {
+                            if(variant.code.includes(item.code)) {
+                                item.isChecked = item.level == variant.level - 1
+                                return item
+                            }
+                        } else {
+                            return item.level == variant.level
+                        }
+                    })
+                }
+            }
         },
         selectAttributeName(cardPlace) {
             if(cardPlace === 'variantCreator') {
