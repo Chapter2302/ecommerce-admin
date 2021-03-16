@@ -327,7 +327,6 @@
                 <v-row class="mt-4">
                     <v-col cols="12" sm="4" class="pb-0">
                         <v-select
-                            :rules="[rules.select('Name')]"
                             label="Attribute Name" v-model="thisModel.newAttribute.key"
                             :items="attributeList" @input="selectAttributeName('modelEditor')"
                             item-value="key" dense
@@ -704,7 +703,7 @@ export default {
             }
         },
         addNewAttribute(cardPlace) {
-            if(cardPlace === 'variantCreator') {
+            if(cardPlace === 'variantCreator' && this.creator.newAttribute.name != "") {
                 set(this.creator.attributes, this.creator.newAttribute.key, this.creator.newAttribute.value)
                 const isExist = this.creator.attributesArray.find(attribute => {
                     if(attribute.name == this.creator.newAttribute.name) {
@@ -719,7 +718,7 @@ export default {
                         key: this.creator.newAttribute.key
                     })
                 }
-            } else if(cardPlace === 'variantEditor') {
+            } else if(cardPlace === 'variantEditor' && this.selectedVariant.newAttribute.name != "") {
                 set(this.selectedVariant.attributes, this.selectedVariant.newAttribute.key, this.selectedVariant.newAttribute.value)
                 const isExist = this.selectedVariant.attributesArray.find(attribute => {
                     if(attribute.name == this.selectedVariant.newAttribute.name) {
@@ -734,8 +733,9 @@ export default {
                         key: this.selectedVariant.newAttribute.key 
                     })
                 }
-            } else if(cardPlace === 'modelEditor') {
+            } else if(cardPlace === 'modelEditor' && this.thisModel.newAttribute.name != "") {
                 set(this.thisModel.attributes, this.thisModel.newAttribute.key, this.thisModel.newAttribute.value)
+                console.log(this.thisModel.newAttribute)
                 const isExist = this.thisModel.attributesArray.find(attribute => {
                     if(attribute.name == this.thisModel.newAttribute.name) {
                         attribute.value = this.thisModel.newAttribute.value
@@ -980,6 +980,6 @@ export default {
             })
         }
         // This Model handle
-    },   
+    }   
 }
 </script>
