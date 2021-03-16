@@ -67,7 +67,7 @@
         >
             <v-card>
                 <v-card-title class="px-4">
-                    Variant Editor 
+                    Editor 
                 </v-card-title>
                 <v-divider class="mb-6"></v-divider>
                 <v-card-text>
