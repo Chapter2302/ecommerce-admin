@@ -292,19 +292,27 @@
         <v-row class="mt-8">
             <v-col cols="12" md="6">
                 <v-row>
-                    <v-col cols="12" sm="4">
+                    <v-col cols="12" sm="6">
                         <v-text-field
                             label="Code" dense
                             v-model="thisModel.code"
                         ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="4">
+                    <v-col cols="12" sm="6">
                         <v-text-field
                             label="Name" dense
                             v-model="thisModel.name"
                         ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="4">
+                </v-row>
+                <v-row>
+                    <v-col cols="12" sm="6">
+                        <v-text-field
+                            label="Level" dense
+                            v-model="thisModel.variantLevels"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6">
                         <v-select
                             label="Active" dense 
                             :items="[  
@@ -317,66 +325,57 @@
                     </v-col>
                 </v-row>
                 <v-row class="mt-4">
-                        <v-col cols="12" sm="4" class="pb-0">
-                            <v-select
-                                :rules="[rules.select('Name')]"
-                                label="Attribute Name" v-model="thisModel.newAttribute.key"
-                                :items="attributeList" @input="selectAttributeName('modelEditor')"
-                                item-value="key" dense
-                                item-text="name"
-                            ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="4" class="pb-0">
-                            <v-text-field 
-                                v-if="thisModel.newAttribute.type == ''"
-                                disabled dense label="Attribute Value"
-                            ></v-text-field>
-                            <v-text-field
-                                v-model="thisModel.newAttribute.value"
-                                v-if="thisModel.newAttribute.type == 'input'"
-                                label="Attribute Value" dense
-                            ></v-text-field>
-                            <v-select
-                                v-model="thisModel.newAttribute.value"
-                                v-if="thisModel.newAttribute.type == 'select'"
-                                label="Attribute Value" dense :items="thisModel.newAttribute.valueList"
-                            ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="4">
-                            <v-btn 
-                                block small color="primary"
-                                @click="addNewAttribute('modelEditor')"
-                            >Add Or Edit</v-btn>
-                        </v-col>
-                    </v-row>
-                    <v-row class="my-6">
-                        <v-col cols="12" class="pt-0">
-                            <v-data-table
-                                hide-default-footer
-                                disable-sort dense
-                                :headers="[
-                                    { text: 'Name', value: 'name' },
-                                    { text: 'Value', value: 'value' },
-                                    { text: '', value: 'action', sortable: false }
-                                ]" height="160"
-                                :items="thisModel.attributesArray"
-                                class="elevation-1 px-2"
-                            >
-                                <template v-slot:item.action="{ item }">
-                                    <v-icon 
-                                        x-small @click="deleteAttribute(item, 'modelEditor')"
-                                    >fas fa-trash</v-icon>
-                                </template>
-                            </v-data-table>
-                        </v-col>
-                    </v-row>
-                <v-row class="d-flex">
-                    <v-col cols="12" sm="6"></v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="4" class="pb-0">
+                        <v-select
+                            :rules="[rules.select('Name')]"
+                            label="Attribute Name" v-model="thisModel.newAttribute.key"
+                            :items="attributeList" @input="selectAttributeName('modelEditor')"
+                            item-value="key" dense
+                            item-text="name"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="4" class="pb-0">
+                        <v-text-field 
+                            v-if="thisModel.newAttribute.type == ''"
+                            disabled dense label="Attribute Value"
+                        ></v-text-field>
+                        <v-text-field
+                            v-model="thisModel.newAttribute.value"
+                            v-if="thisModel.newAttribute.type == 'input'"
+                            label="Attribute Value" dense
+                        ></v-text-field>
+                        <v-select
+                            v-model="thisModel.newAttribute.value"
+                            v-if="thisModel.newAttribute.type == 'select'"
+                            label="Attribute Value" dense :items="thisModel.newAttribute.valueList"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="4">
                         <v-btn 
-                            block color="primary"
-                            @click="openUpdateConfirmDialog()"
-                        >Update Model</v-btn>
+                            block small color="primary"
+                            @click="addNewAttribute('modelEditor')"
+                        >Add Or Edit</v-btn>
+                    </v-col>
+                </v-row>
+                <v-row class="my-6">
+                    <v-col cols="12" class="pt-0">
+                        <v-data-table
+                            hide-default-footer
+                            disable-sort dense
+                            :headers="[
+                                { text: 'Name', value: 'name' },
+                                { text: 'Value', value: 'value' },
+                                { text: '', value: 'action', sortable: false }
+                            ]" height="160"
+                            :items="thisModel.attributesArray"
+                            class="elevation-1 px-2"
+                        >
+                            <template v-slot:item.action="{ item }">
+                                <v-icon 
+                                    x-small @click="deleteAttribute(item, 'modelEditor')"
+                                >fas fa-trash</v-icon>
+                            </template>
+                        </v-data-table>
                     </v-col>
                 </v-row>
             </v-col>
@@ -484,6 +483,15 @@
                     </v-data-table>
                     <!-- Varaint tables -->
                 </v-card>
+                <v-row class="d-flex mt-8">
+                    <v-col cols="12" sm="6"></v-col>
+                    <v-col cols="12" sm="6">
+                        <v-btn 
+                            block color="primary"
+                            @click="openUpdateConfirmDialog()"
+                        >Update Model</v-btn>
+                    </v-col>
+                </v-row>
             </v-col>
         </v-row>
     </div> 
@@ -951,7 +959,7 @@ export default {
             const data = { 
                 code: this.thisModel.code, 
                 name: this.thisModel.name, 
-                variant_levels: this.thisModel.variantLevels, 
+                variant_levels: Number(this.thisModel.variantLevels), 
                 is_active: this.thisModel.isActive, 
                 attributes: this.thisModel.attributes
             }
