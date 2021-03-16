@@ -71,5 +71,12 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+  },
+
+  env: {
+    baseAPI:
+      process.env.NODE_ENV !== "production"
+        ? "http://data.cams.vn/v1/api"
+        : "http://data.cams.vn/v1/api"
   }
 }

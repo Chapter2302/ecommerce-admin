@@ -14,7 +14,7 @@
         <!-- CreatorDialog -->
         <v-dialog 
             v-model="creatorDialog"
-            max-width="320" 
+            max-width="400" 
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
@@ -31,6 +31,7 @@
                         </v-col>
                         <v-col cols="12" sm="6">
                             <v-text-field
+                                v-model="attributeActionDialogInfo.creatorKey"
                                 label="Key" dense
                                 color="primary"
                                 :rules="[rules.textField('Key')]"
@@ -41,6 +42,7 @@
                     <v-row>
                         <v-col cols="12">
                             <v-text-field
+                                v-model="attributeActionDialogInfo.creatorName"
                                 label="Name" dense
                                 color="primary"
                                 :rules="[rules.textField('Name')]"
@@ -56,11 +58,30 @@
                                 </v-card-title>
                                 <v-data-table 
                                     height="90px" class="elevation-1"
-                                    :headers="[{ text: 'Value List', value: 'value', sortable: false }]"
+                                    :headers="[
+                                        { text: 'Value List', value: 'value', sortable: false },
+                                        { text: '', value: 'action', sortable: false },
+                                    ]"
                                     :items="attributeActionDialogInfo.creatorValues"
                                     hide-default-header
                                     hide-default-footer dense
-                                ></v-data-table>
+                                >
+                                    <template v-slot:item.action="{ item }">
+                                        <v-btn 
+                                            small icon @click="deleteCreatorAttributeItem(item.value)"
+                                            class="mx-1" color="primary"
+                                        >
+                                            <v-icon small>
+                                                fas fa-trash
+                                            </v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <template v-slot:item.value="{ item, index }">
+                                        <v-text-field 
+                                            v-model="item.value" dense @change="onCreatorValueChange(item.value, index)"
+                                        ></v-text-field>
+                                    </template>
+                                </v-data-table>
                             </v-card>
                             <v-row class="mt-1">
                                 <v-col cols="8">
@@ -73,6 +94,18 @@
                                         color="primary"
                                         @click="addNewCreatorValue()"
                                     >Add</v-btn>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-alert
+                                        dense type="success"
+                                        v-model="attributeActionDialogInfo.creatorSuccessAlert"
+                                    >Crreate success</v-alert>
+                                    <v-alert
+                                        dense type="error"
+                                        v-model="attributeActionDialogInfo.creatorErrorAlert"
+                                    >Something wrong! Please try later</v-alert>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -98,7 +131,7 @@
         <!-- EditorDialog -->
         <v-dialog 
             v-model="editorDialog"
-            max-width="320" 
+            max-width="400" 
         >
             <v-card>
                 <v-card-title class="headline primary white--text">
@@ -140,11 +173,24 @@
                                 </v-card-title>
                                 <v-data-table 
                                     height="90px" class="elevation-1"
-                                    :headers="[{ text: 'Value List', value: 'value', sortable: false }]"
+                                    :headers="[
+                                        { text: 'Value List', value: 'value', sortable: false },
+                                        { text: '', value: 'action', sortable: false }
+                                    ]"
                                     :items="attributeActionDialogInfo.editorValues"
                                     hide-default-header
                                     hide-default-footer dense
                                 >
+                                    <template v-slot:item.action="{ item }">
+                                        <v-btn 
+                                            small icon @click="deleteEditorAttributeItem(item.value)"
+                                            class="mx-1" color="primary"
+                                        >
+                                            <v-icon small>
+                                                fas fa-trash
+                                            </v-icon>
+                                        </v-btn>
+                                    </template>
                                     <template v-slot:item.value="{ item, index }">
                                         <v-text-field 
                                             v-model="item.value" dense @change="onEditorValueChange(item.value, index)"
@@ -163,6 +209,18 @@
                                         color="primary"
                                         @click="addNewEditorValue()"
                                     >Add</v-btn>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-alert
+                                        dense type="success"
+                                        v-model="attributeActionDialogInfo.editorSuccessAlert"
+                                    >Update success</v-alert>
+                                    <v-alert
+                                        dense type="error"
+                                        v-model="attributeActionDialogInfo.editorErrorAlert"
+                                    >Something wrong! Please try later</v-alert>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -189,11 +247,25 @@
         <v-dialog max-width="300" v-model="deleteDialog" >
             <v-card class="py-4">
                 <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-alert
+                                dense type="success"
+                                v-model="deleteSuccessAlert"
+                            >Delete success</v-alert>
+                            <v-alert
+                                dense type="error"
+                                v-model="deleteErrorAlert"
+                            >Something wrong! Please try later</v-alert>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
                 <v-card-actions class="d-flex justify-center ">
                     <v-btn color="primary" class="mr-2" @click="deleteDialog = false">
                         Close
                     </v-btn>
-                    <v-btn color="primary">
+                    <v-btn color="primary" @click="deleteAttribute()">
                         Confirm
                     </v-btn>
                 </v-card-actions>
@@ -296,7 +368,10 @@ export default {
             creatorDialog: false,
             editorDialog: false,
             deleteDialog: false,
+            deleteSuccessAlert: false,
+            deleteErrorAlert: false,
             attributeActionDialogInfo: { 
+                editorId: "",
                 creatorType: "",
                 editorType: "",
                 creatorName: "",
@@ -306,7 +381,11 @@ export default {
                 newCreatorValue: "",
                 newEditorValue: "",
                 creatorValues: [],
-                editorValues: []
+                editorValues: [],
+                creatorSuccessAlert: false,
+                creatorErrorAlert: false,
+                editorSuccessAlert: false,
+                editorErrorAlert: false,
             },
             typeList: ['select', 'input', 'multi'],
             attributeTableHeaders: [
@@ -334,25 +413,22 @@ export default {
                 }
             })
         },
-        createAttribute() {
-            console.log("create: ", {
-            })
-        },
-        updateAttribute() {
-            console.log("update: ", {
-            })
-        },
         openCreatorDialog() {
+            this.attributeActionDialogInfo.createtorSuccessAlert = false
+            this.attributeActionDialogInfo.createtorErrorAlert = false
             this.creatorDialog = true
         },
         openEditorDialog(item) {
             this.editorDialog = true
+            this.attributeActionDialogInfo.editorId = item.id
             this.attributeActionDialogInfo.editorName = item.name
             this.attributeActionDialogInfo.editorType = item.type
             this.attributeActionDialogInfo.editorKey = item.key
             this.attributeActionDialogInfo.editorValues = item.value.map(item => {
                 return { value: item }
             })
+            this.attributeActionDialogInfo.editorSuccessAlert = false
+            this.attributeActionDialogInfo.editorErrorAlert = false
         },
         addNewCreatorValue() {
             if(this.attributeActionDialogInfo.newCreatorValue != "") {
@@ -368,11 +444,82 @@ export default {
                 this.attributeActionDialogInfo.newEditorValue = ""
             }
         },
+        onCreatorValueChange(value, index) {
+            this.attributeActionDialogInfo.creatorValues[index].value = value
+        },
         onEditorValueChange(value, index) {
-            this.attributeActionDialogInfo.editorValues[index] = value
+            this.attributeActionDialogInfo.editorValues[index].value = value
+        },
+        deleteCreatorAttributeItem(value) {
+            this.attributeActionDialogInfo.creatorValues = this.attributeActionDialogInfo.creatorValues.filter(item => (item.value != value))
+        },
+        deleteEditorAttributeItem(value) {
+            this.attributeActionDialogInfo.editorValues = this.attributeActionDialogInfo.editorValues.filter(item => (item.value != value))
         },
         openDeleteDialog(item) {
+            this.attributeActionDialogInfo.editorId = item.id
             this.deleteDialog = true
+        },
+        createAttribute() {
+            const data = {
+                type: this.attributeActionDialogInfo.creatorType, 
+                name: this.attributeActionDialogInfo.creatorName, 
+                key: this.attributeActionDialogInfo.creatorKey, 
+                value: this.attributeActionDialogInfo.creatorValues.map(item => (item.value))
+            }
+            console.log("create: ", data)
+
+            this.$store.dispatch("createAttribute", {
+                data,
+                onSuccess: async data => {
+                    this.attributeActionDialogInfo.creatorSuccessAlert = true
+                    this.fetchAttributeList()
+                },
+                onError: async data => {
+                    console.log('attribute create error: ', data)
+                    this.attributeActionDialogInfo.creatorErrorAlert = true
+                }
+            })
+        },
+        updateAttribute() {
+            const data = {
+                type: this.attributeActionDialogInfo.editorType, 
+                name: this.attributeActionDialogInfo.editorName, 
+                key: this.attributeActionDialogInfo.editorKey, 
+                value: this.attributeActionDialogInfo.editorValues.map(item => (item.value))
+            }
+            const attributeId = this.attributeActionDialogInfo.editorId
+
+            this.$store.dispatch("updateAttribute", {
+                attributeId,
+                data,
+                onSuccess: async data => {
+                    this.attributeActionDialogInfo.editorSuccessAlert = true
+                    this.fetchAttributeList()
+                },
+                onError: async data => {
+                    console.log('attribute update error: ', data)
+                    this.attributeActionDialogInfo.editorErrorAlert = true
+                }
+            })
+
+            console.log("update: ", this.attributeActionDialogInfo)
+        },
+        deleteAttribute() {
+            const attributeId = this.attributeActionDialogInfo.editorId
+            
+            this.$store.dispatch("deleteAttribute", {
+                attributeId,
+                onSuccess: async data => {
+                    
+                    this.deleteSuccessAlert = true
+                    this.fetchAttributeList()
+                },
+                onError: async data => {
+                    console.log('attribute delete error: ', data)
+                    this.deleteErrorAlert = true
+                }
+            })
         }
     }   
 }

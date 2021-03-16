@@ -1,14 +1,58 @@
 <template>
     <div class="wrapper px-4">
+        <!-- Update Model Dialog -->
+        <v-dialog max-width="300" v-model="updateConfirmDialog" >
+            <v-card class="py-4">
+                <v-card-title class="d-flex justify-center">Do you want to update?</v-card-title>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-alert
+                                dense type="success"
+                                v-model="updateConfirmSuccessAlert"
+                            >Update success</v-alert>
+                            <v-alert
+                                dense type="error"
+                                v-model="updateConfirmErrorAlert"
+                            >Something wrong! Please try later</v-alert>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-card-actions class="d-flex justify-center ">
+                    <v-btn color="primary" class="mr-2" @click="updateConfirmDialog = false">
+                        Close
+                    </v-btn>
+                    <v-btn color="primary" @click="updateModel()">
+                        Confirm
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- Update Model Dialog -->
+
         <!-- Delete Variant Dialog -->
         <v-dialog max-width="300" v-model="deleteDialog" >
             <v-card class="py-4">
                 <v-card-title class="d-flex justify-center">Do you want to delete?</v-card-title>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-alert
+                                dense type="success"
+                                v-model="deleteSuccessAlert"
+                            >Delete success</v-alert>
+                            <v-alert
+                                dense type="error"
+                                v-model="deleteErrorAlert"
+                            >Something wrong! Please try later</v-alert>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
                 <v-card-actions class="d-flex justify-center ">
                     <v-btn color="primary" class="mr-2" @click="cancelDeleteDialogBtn()">
                         Close
                     </v-btn>
-                    <v-btn color="primary" @click="confirmDeleteVariant()">
+                    <v-btn color="primary" @click="deleteVariant()">
                         Confirm
                     </v-btn>
                 </v-card-actions>
@@ -100,6 +144,18 @@
                                     >fas fa-trash</v-icon>
                                 </template>
                             </v-data-table>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-alert
+                                dense type="success"
+                                v-model="editorSuccessAlert"
+                            >Update success</v-alert>
+                            <v-alert
+                                dense type="error"
+                                v-model="editorErrorAlert"
+                            >Something wrong! Please try later</v-alert>
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -201,6 +257,18 @@
                             </v-data-table>
                         </v-col>
                     </v-row>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-alert
+                                dense type="success"
+                                v-model="creatorSuccessAlert"
+                            >Crreate success</v-alert>
+                            <v-alert
+                                dense type="error"
+                                v-model="creatorErrorAlert"
+                            >Something wrong! Please try later</v-alert>
+                        </v-col>
+                    </v-row>
                 </v-card-text>
                 <v-divider class="my-6"></v-divider>
                 <v-card-actions class="d-flex pb-4 pt-0">
@@ -214,7 +282,7 @@
                     <v-btn 
                         small class="col-4"
                         color="primary"
-                        @click="createNewVariant()"
+                        @click="createVariant()"
                     >Create</v-btn>
                 </v-card-actions>
             </v-card>
@@ -305,7 +373,10 @@
                 <v-row class="d-flex">
                     <v-col cols="12" sm="6"></v-col>
                     <v-col cols="12" sm="6">
-                        <v-btn block color="primary">Update Model</v-btn>
+                        <v-btn 
+                            block color="primary"
+                            @click="openUpdateConfirmDialog()"
+                        >Update Model</v-btn>
                     </v-col>
                 </v-row>
             </v-col>
@@ -324,7 +395,7 @@
                         </v-btn>
                         <v-btn 
                             small color="primary" v-if="!isMultipleChoice"
-                            @click="clickCreateNewVariantBtn(1)"
+                            @click="openVariantCreatorDialog(1, null)"
                         >
                             Create <v-icon small class="ml-2">fas fa-plus</v-icon>
                         </v-btn>
@@ -341,44 +412,42 @@
                             Delete
                         </v-btn>
                     </v-card-title>
+                    
+                    <!-- Varaint tables -->
                     <v-data-table
+                        v-for="(table, index) in variantTablesList"
+                        :key="'table_' + index"
                         :headers="[{ text: '', value: 'code' }]"
-                        :items="variantTableItems"
+                        :items="table.tableItems"
                         item-key="code" dense single-select
-                        group-by="level" 
                         hide-default-header
                         hide-default-footer
                     >
-                        <template v-slot:group.header="{items, isOpen, toggle}">
-                            <th class="d-flex align-center">
-                                <v-icon @click="toggle" class="mr-1"
-                                >{{  isOpen ? 'mdi-minus' : 'mdi-plus' }}
-                                </v-icon>
-                                LEVEL {{ items[0].level }}
-                            </th>
-                        </template>
-                        <template v-slot:item="{ item }">
+                        <template v-slot:item="{ item, select, isSelected }">
                             <tr 
-                                v-if="!selectedVariant.isEmpty || item.level == 1" 
-                                :style="{'background-color': item.isChecked ? '#eeeeee' : '#ffffff'}"
+                                :style="{'background-color': item.isOpen ? '#eeeeee' : '#ffffff'}"
                             >
                                 <td 
                                     class="d-flex align-center" 
                                     style="cursor: pointer"
+                                    :class="`pl-${(item.level - 1) * 4}`"
                                 >
-                                    <v-simple-checkbox
-                                        :value="item.isChecked" class="mr-2"
-                                        @input="clickSelectVariant(item)" color="primary"
-                                    ></v-simple-checkbox>
+                                    <v-btn 
+                                        small icon 
+                                        @click="clickAngleButton(index, item)"
+                                    >
+                                        <v-icon small
+                                        >{{  item.isOpen ? 'fas fa-angle-down' : 'fas fa-angle-right' }}
+                                        </v-icon>
+                                    </v-btn>
                                     {{item.code}}
                                     <v-spacer></v-spacer>
                                     <v-tooltip bottom>
                                         <template v-slot:activator="{ on, attrs }">
                                             <v-btn 
-                                                :disabled="!item.isChecked"
                                                 small icon color="primary" 
                                                 v-on="on" v-bind="attrs"
-                                                @click="clickCreateNewVariantBtn(item.level)"
+                                                @click="openVariantCreatorDialog(index, item)"
                                             >
                                                 <v-icon small>
                                                     fas fa-plus
@@ -390,10 +459,9 @@
                                     <v-tooltip bottom>
                                         <template v-slot:activator="{ on, attrs }">
                                             <v-btn 
-                                                :disabled="!item.isChecked"
                                                 small icon color="primary"
                                                 v-on="on" v-bind="attrs"
-                                                @click="editorDialog = true"
+                                                @click="openVariantEditorDialog(index, item)"
                                             >
                                                 <v-icon small>
                                                     fas fa-pen
@@ -403,9 +471,8 @@
                                         <span>Edit </span>
                                     </v-tooltip>
                                     <v-btn 
-                                        :disabled="!item.isChecked"
                                         small icon color="primary"
-                                        @click="deleteDialog = true"
+                                        @click="openVariantDeleteDialog(item)"
                                     >
                                         <v-icon small>
                                             fas fa-trash
@@ -415,6 +482,7 @@
                             </tr>
                         </template>
                     </v-data-table>
+                    <!-- Varaint tables -->
                 </v-card>
             </v-col>
         </v-row>
@@ -435,6 +503,16 @@ export default {
             isMultipleChoice: false,
             editorDialog: false,
             creatorDialog: false,
+            deleteDialog: false,
+            updateConfirmDialog: false,
+            updateConfirmSuccessAlert: false,
+            updateConfirmErrorAlert: false,
+            creatorSuccessAlert: false,
+            creatorErrorAlert: false,
+            editorSuccessAlert: false,
+            editorErrorAlert: false,
+            deleteSuccessAlert: false,
+            deleteErrorAlert: false,
             thisModel: {
                 code: "",
                 name: "",
@@ -450,11 +528,13 @@ export default {
                     valueList: [] 
                 },
             },
-            variantList: [],
-            variantTableItems: [],
+            variantFetchList: [],
+            variantTablesList: [],
             attributeList: [],
             selectedVariant: {
+                id: "",
                 isEmpty: true,
+                tableIndex: "",
                 code: "",
                 level: "",
                 attributes: {},
@@ -467,7 +547,6 @@ export default {
                     valueList: [] 
                 },
             },
-            deleteDialog: false,
             creator: {
                 code: "",
                 level: "",
@@ -489,6 +568,7 @@ export default {
         await this.fetchVariantList()
     },
     methods: {
+        // Fetch API
         async fetchModelById() {
             const modelId = this.modelId
             await this.$store.dispatch("getModel", {
@@ -529,11 +609,19 @@ export default {
                     variants.forEach(variant => {
                         if(modelId === variant.model_id) {
                             variant.isChecked = false
-                            this.variantList.push(variant)
+                            variant.isOpen = false
+                            this.variantFetchList.push(variant)
                         }
                     })
-                    this.variantTableItems = variants.filter(variant => {
-                        return variant.level === 1 && variant.model_id === modelId
+
+                    variants.forEach(variant => {
+                        if(modelId === variant.model_id && variant.level === 1) {
+                            const newTable = {
+                                parentVariant: variant,
+                                tableItems: [variant]
+                            }
+                            this.variantTablesList.push(newTable)
+                        }
                     })
                 },
                 onError: async data => {
@@ -552,100 +640,37 @@ export default {
                 }
             })
         },
-        clickSelectVariant(variant) {
-            if(!variant.isChecked) {
-                this.selectedVariant = {
-                    isEmpty: false,
-                    code: variant.code,
-                    level: variant.level,
-                    attributes: variant.attributes,
-                    attributesArray: Object.keys(variant.attributes).map(key => {
-                        const attribute = this.attributeList.find(attribute => (attribute.key === key))
-                        return {
-                            name: attribute.name, 
-                            value: get(variant.attributes, key, null),
-                            key: attribute.key
-                        } 
-                    }),
-                    newAttribute: { 
-                        type: '', 
-                        name: '', 
-                        key: '', 
-                        value: '', 
-                        valueList: [] 
-                    },
-                } 
-                this.variantTableItems = this.variantList.filter(item => {
-                    if(item.code == variant.code)
-                        item.isChecked = true
-                    else
-                        item.isChecked = false
-                    if(item.level <= variant.level) {
-                        return variant.code.includes(item.code)
-                    } else {
-                        return item.code.includes(variant.code) && item.level == variant.level + 1
-                    }
-                })
-            } 
-            else {
-                if(variant.level == 1) {
-                    this.variantTableItems = this.variantList.filter(item => {
-                        item.isChecked = false
-                        return item.level == 1
-                    })
-                    this.selectedVariant = {
-                        isEmpty: true,
-                        code: "",
-                        level: "",
-                        attributes: {},
-                        attributesArray: [],
-                        newAttribute: { 
-                            type: '', 
-                            name: '', 
-                            key: '', 
-                            value: '', 
-                            valueList: [] 
-                        }
-                    }
-                } else {
-                    const newSelectedVariant = this.variantList.find(item => {
-                        return item.level == variant.level - 1 && variant.code.includes(item.code)
-                    })
-                    this.selectedVariant = {
-                        isEmpty: false,
-                        code: newSelectedVariant.code,
-                        level: newSelectedVariant.level,
-                        attributes: newSelectedVariant.attributes,
-                        attributesArray: Object.keys(newSelectedVariant.attributes).map(key => {
-                            const attribute = this.attributeList.find(attribute => (attribute.key === key))
-                            return {
-                                name: attribute.name, 
-                                value: get(newSelectedVariant.attributes, key, null),
-                                key: attribute.key
-                            } 
-                        }),
-                        newAttribute: { 
-                            type: '', 
-                            name: '', 
-                            key: '', 
-                            value: '', 
-                            valueList: [] 
-                        },
-                    }
-                    this.variantTableItems = this.variantList.filter(item => {
-                        item.isChecked = false
-                        if(item.level < variant.level) {
-                            if(variant.code.includes(item.code)) {
-                                item.isChecked = item.level == variant.level - 1
-                                return item
-                            }
-                        } else {
-                            return item.level == variant.level
-                        }
-                    })
-                }
-            }
+        // Fetch API
+
+        // Functions
+        sortTableItems(tableItems) {
+            const newTableItems = tableItems.sort(function(a, b){
+                if(a.code < b.code) { return -1; }
+                if(a.code > b.code) { return 1; }
+                return 0;
+            })
+            return newTableItems
         },
+        clickAngleButton(index, variant) {
+            variant.isOpen = !variant.isOpen;
+            if(variant.isOpen) {
+                this.variantFetchList.forEach(item => {
+                    if(item.code.includes(variant.code) && item.level === variant.level + 1)
+                        this.variantTablesList[index].tableItems.push(item)
+                })
+            } else {
+                
+                this.variantTablesList[index].tableItems = []
+                this.variantFetchList.forEach(item => {
+                    if(item.level <= variant.level && item.code.includes(this.variantTablesList[index].parentVariant.code))
+                        this.variantTablesList[index].tableItems.push(item)
+                })
+            }
+            this.variantTablesList[index].tableItems = this.sortTableItems(this.variantTablesList[index].tableItems)
+        },
+        // Functions
+
+        // Attribute handle
         selectAttributeName(cardPlace) {
             if(cardPlace === 'variantCreator') {
                 const newAttribute = this.attributeList.find(attribute => {
@@ -718,46 +743,6 @@ export default {
                 }
             }
         },
-        clickCreateNewVariantBtn(level) {
-            this.creator.level = level + 1
-            this.creatorDialog = true
-        },
-        createNewVariant() {
-            const newVariant = {
-                code: this.creator.code,
-                model_id: this.modelId,
-                attributes: this.creator.attributes,
-                level: Number(this.creator.level)
-            }
-            this.variantList.push(newVariant)
-            this.variantTableItems.push(newVariant)
-            this.creatorDialog = false
-        },
-        updateVariant() {
-            this.variantList = this.variantList.map(variant => {
-                if(variant.code === this.selectedVariant.code) {
-                    return {
-                        ...variant,
-                        code: this.selectedVariant.code,
-                        level: this.selectedVariant.level,
-                        attributes: this.selectedVariant.attributes,   
-                    }
-                }
-                return variant
-            })
-            this.variantTableItems = this.variantTableItems.map(variant => {
-                if(variant.code === this.selectedVariant.code) {
-                    return {
-                        ...variant,
-                        code: this.selectedVariant.code,
-                        level: this.selectedVariant.level,
-                        attributes: this.selectedVariant.attributes,   
-                    }
-                }
-                return variant
-            })
-            this.editorDialog = false
-        },
         deleteAttribute(attribute, cardPlace) {
             if(cardPlace === 'variantCreator') {
                 const newAttributesArray = this.creator.attributesArray.filter(item => {
@@ -780,19 +765,59 @@ export default {
                 delete this.thisModel.attributes[attribute.key]
             }
         },
-        confirmDeleteVariant() {
-            this.variantList = this.variantList.filter(item => {
-                return !item.code.includes(this.selectedVariant.code) 
-            })
-            this.variantTableItems = this.variantTableItems.filter(item => {
-                return !item.code.includes(this.selectedVariant.code) 
-            })
+        // Attribute handle
+
+        // Variant Dialog Handle
+        openVariantCreatorDialog(index, variant) {
+            this.creatorSuccessAlert = false
+            this.createtorErrorAlert = false
+            if(index != 1) {
+                this.creator.level = variant.level + 1
+                this.selectedVariant = {
+                    isEmpty: false,
+                    tableIndex: index,
+                    code: variant.code,
+                    level: variant.level,
+                    attributes: variant.attributes,
+                    attributesArray: Object.keys(variant.attributes).map(key => {
+                        const attribute = this.attributeList.find(attribute => (attribute.key === key))
+                        return {
+                            name: attribute.name, 
+                            value: get(variant.attributes, key, null),
+                            key: attribute.key
+                        } 
+                    }),
+                    newAttribute: { 
+                        type: '', 
+                        name: '', 
+                        key: '', 
+                        value: '', 
+                        valueList: [] 
+                    },
+                } 
+            } else {
+                this.creator.level = 1
+            }
+            this.creatorDialog = true
+        },
+        openVariantEditorDialog(index, variant) {
+            this.editorSuccessAlert = false
+            this.editorErrorAlert = false
             this.selectedVariant = {
-                isEmpty: true,
-                code: '',
-                level: '',
-                attributes: {},
-                attributesArray: [],
+                id: variant.id,
+                isEmpty: false,
+                tableIndex: index,
+                code: variant.code,
+                level: variant.level,
+                attributes: variant.attributes,
+                attributesArray: Object.keys(variant.attributes).map(key => {
+                    const attribute = this.attributeList.find(attribute => (attribute.key === key))
+                    return {
+                        name: attribute.name, 
+                        value: get(variant.attributes, key, null),
+                        key: attribute.key
+                    } 
+                }),
                 newAttribute: { 
                     type: '', 
                     name: '', 
@@ -800,8 +825,14 @@ export default {
                     value: '', 
                     valueList: [] 
                 },
-            }
-            this.deleteDialog = false
+            } 
+            this.editorDialog = true
+        },
+        openVariantDeleteDialog(variant) {
+            this.deleteSuccessAlert = false
+            this.deleteErrorAlert = false
+            this.selectedVariant.id = variant.id
+            this.deleteDialog = true
         },
         cancelDeleteDialogBtn() {
             this.selectedVariant = {
@@ -819,7 +850,128 @@ export default {
                 },
             }
             this.deleteDialog = false
+        },
+        // Variant Dialog Handle
+
+        // Variant handle
+        async createVariant() {
+            const data = {
+                code: this.creator.code,
+                model_id: this.modelId,
+                attributes: this.creator.attributes,
+                level: Number(this.creator.level)
+            }
+
+            console.log("create: ", data)
+
+            this.variantFetchList = []
+            this.variantTablesList = []
+            await this.$store.dispatch("createVariant", {
+                data,
+                onSuccess: async data => {
+                    console.log(data)
+                    await this.fetchVariantList()
+                    this.creatorSuccessAlert = true
+                },
+                onError: async data => {
+                    console.log('variant create error: ', data)
+                    this.createtorErrorAlert = true
+                }
+            })
+        },
+        async updateVariant() {
+            const data = {
+                code: this.selectedVariant.code,
+                model_id: this.modelId,
+                attributes: this.selectedVariant.attributes,
+                level: Number(this.selectedVariant.level)
+            }
+
+            const variantId = this.selectedVariant.id
+
+            this.variantFetchList = []
+            this.variantTablesList = []
+            await this.$store.dispatch("updateVariant", {
+                variantId,
+                data,
+                onSuccess: async data => {
+                    await this.fetchVariantList()
+                    this.editorSuccessAlert = true
+                },
+                onError: async data => {
+                    console.log('variant update error: ', data)
+                    this.editorErrorAlert = true
+                }
+            })
+        },
+        async deleteVariant() {
+            const variantId = this.selectedVariant.id
+
+            this.variantFetchList = []
+            this.variantTablesList = []
+            await this.$store.dispatch("deleteVariant", {
+                variantId,
+                onSuccess: async data => {
+                    await this.fetchVariantList()
+                    this.deleteSuccessAlert = true
+                },
+                onError: async data => {
+                    console.log('variant delete error: ', data)
+                    this.deleteErrorAlert = true
+                }
+            })
+
+            // this.variantTableItems = this.variantTableItems.filter(item => {
+            //     return !item.code.includes(this.selectedVariant.code) 
+            // })
+            this.selectedVariant = {
+                isEmpty: true,
+                code: '',
+                level: '',
+                attributes: {},
+                attributesArray: [],
+                newAttribute: { 
+                    type: '', 
+                    name: '', 
+                    key: '', 
+                    value: '', 
+                    valueList: [] 
+                },
+            }
+        },
+        // Variant handle
+
+        // This Model handle
+        openUpdateConfirmDialog() {
+            this.updateConfirmErrorAlert = false
+            this.updateConfirmSuccessAlert = false
+            this.updateConfirmDialog = true
+        },
+        updateModel() {
+            const data = { 
+                code: this.thisModel.code, 
+                name: this.thisModel.name, 
+                variant_levels: this.thisModel.variantLevels, 
+                is_active: this.thisModel.isActive, 
+                attributes: this.thisModel.attributes
+            }
+            const modelId = this.modelId
+            console.log('update model: ', data)
+
+            this.$store.dispatch("updateModel", {
+                modelId,
+                data,
+                onSuccess: async data => {
+                    this.updateConfirmSuccessAlert = true
+                    this.fetchModelById()
+                },
+                onError: async data => {
+                    console.log('model create error: ', data)
+                    this.updateConfirmErrorAlert = true
+                }
+            })
         }
+        // This Model handle
     },   
 }
 </script>

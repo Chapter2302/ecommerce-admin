@@ -7,7 +7,7 @@ export async function getWarehouseList(
     { onSuccess, onError }
 ) {
     return await axios({
-        url: `http://data.cams.vn/v1/api/inventory/warehouse`,
+        url: `${process.env.baseAPI}/inventory/warehouse`,
         method: "GET",
         headers: {}
     })
@@ -33,7 +33,7 @@ export async function createWarehouse(
     { data, onSuccess, onError }
 ) {
     return await axios({
-      url: `http://data.cams.vn/v1/api/inventory/warehouse`,
+      url: `${process.env.baseAPI}/inventory/warehouse`,
       method: "POST",
       data,
     })
@@ -62,7 +62,7 @@ export async function getInventoryItemList(
     { onSuccess, onError }
 ) {
     return await axios({
-        url: `http://data.cams.vn/v1/api/inventory/item`,
+        url: `${process.env.baseAPI}/inventory/item`,
         method: "GET",
         headers: {}
     })
@@ -88,7 +88,7 @@ export async function createInventoryItem(
     { data, onSuccess, onError }
 ) {
     return await axios({
-      url: `http://data.cams.vn/v1/api/inventory/item`,
+      url: `${process.env.baseAPI}/inventory/item`,
       method: "POST",
       data,
     })
@@ -115,7 +115,7 @@ export async function updateInventoryItem(
     { itemId, data, onSuccess, onError }
 ) { 
     return await axios({
-        url: `http://data.cams.vn/v1/api/inventory/item/${itemId}`,
+        url: `${process.env.baseAPI}/inventory/item/${itemId}`,
         method: "PUT",
         data
       })
@@ -142,7 +142,7 @@ export async function deleteInventoryItem(
     { itemId, onSuccess, onError }
 ) {
     return await axios({
-      url: `http://data.cams.vn/v1/api/inventory/item/${itemId}`,
+      url: `${process.env.baseAPI}/inventory/item/${itemId}`,
       method: "DELETE",
     })
     .then(res => {
@@ -175,7 +175,7 @@ export async function getInventoryItemStock(
     const params = obj;
 
     return await axios({
-        url: `http://data.cams.vn/v1/api/inventory/stock`,
+        url: `${process.env.baseAPI}/inventory/stock`,
         method: "GET",
         params: params ? params : false,
         headers: {}
@@ -204,7 +204,7 @@ export async function getAttributeList(
     { onSuccess, onError }
 ) {
     return await axios({
-        url: `http://data.cams.vn/v1/api/product/attribute`,
+        url: `${process.env.baseAPI}/product/attribute`,
         method: "GET",
         headers: {}
     })
@@ -224,6 +224,87 @@ export async function getAttributeList(
         }
     });
 }
+
+export async function createAttribute(
+    { dispatch, commit },
+    { data, onSuccess, onError }
+) {
+    return await axios({
+        url: `${process.env.baseAPI}/product/attribute/`,
+        method: "POST",
+        data,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function updateAttribute(
+    { dispatch, commit },
+    { attributeId, data, onSuccess, onError }
+) {
+    return await axios({
+        url: `${process.env.baseAPI}/product/attribute/${attributeId}`,
+        method: "PUT",
+        data,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function deleteAttribute(
+    { dispatch, commit },
+    { attributeId, onSuccess, onError }
+) {
+    return await axios({
+      url: `${process.env.baseAPI}/product/attribute/${attributeId}`,
+      method: "DELETE",
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            console.log(res)
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+        return data;
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
 //---------------- Attributes --------------------//
 
 //-------------------- Model -----------------------//
@@ -232,7 +313,7 @@ export async function getModelList(
     { onSuccess, onError }
 ) {
     return await axios({
-        url: `http://data.cams.vn/v1/api/product/model`,
+        url: `${process.env.baseAPI}/product/model`,
         method: "GET",
         headers: {}
     })
@@ -258,7 +339,7 @@ export async function getModel(
     { modelId, onSuccess, onError }
 ) {
     return await axios({
-        url: `http://data.cams.vn/v1/api/product/model/${modelId}`,
+        url: `${process.env.baseAPI}/product/model/${modelId}`,
         method: "GET",
         headers: {}
     })
@@ -279,6 +360,85 @@ export async function getModel(
     });
 }
 
+export async function createModel(
+    { dispatch, commit },
+    { data, onSuccess, onError }
+) {
+    return await axios({
+        url: `${process.env.baseAPI}/product/model/`,
+        method: "POST",
+        data,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function updateModel(
+    { dispatch, commit },
+    { modelId, data, onSuccess, onError }
+) {
+    return await axios({
+        url: `${process.env.baseAPI}/product/model/${modelId}`,
+        method: "PUT",
+        data,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function deleteModel(
+    { dispatch, commit },
+    { modelId, onSuccess, onError }
+) {
+    return await axios({
+      url: `${process.env.baseAPI}/product/model/${modelId}`,
+      method: "DELETE",
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+        return data;
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
 //-------------------- Model -----------------------//
 
 //-------------------- Variant -----------------------//
@@ -287,7 +447,7 @@ export async function getVariantList(
     { onSuccess, onError }
 ) {
     return await axios({
-        url: `http://data.cams.vn/v1/api/product/variant`,
+        url: `${process.env.baseAPI}/product/variant`,
         method: "GET",
         headers: {}
     })
@@ -298,6 +458,86 @@ export async function getVariantList(
         } else {
             onError(data);
         }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function createVariant(
+    { dispatch, commit },
+    { data, onSuccess, onError }
+) {
+    return await axios({
+        url: `${process.env.baseAPI}/product/variant/`,
+        method: "POST",
+        data,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function updateVariant(
+    { dispatch, commit },
+    { variantId, data, onSuccess, onError }
+) {
+    return await axios({
+        url: `${process.env.baseAPI}/product/variant/${variantId}`,
+        method: "PUT",
+        data,
+        headers: {}
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+    })
+    .catch(e => {
+        if (e.response) {
+            if (e.response.status < 200 || e.response.status > 299) {
+                onError(e.response.data);
+            }
+        }
+    });
+}
+
+export async function deleteVariant(
+    { dispatch, commit },
+    { variantId, onSuccess, onError }
+) {
+    return await axios({
+      url: `${process.env.baseAPI}/product/variant/${variantId}`,
+      method: "DELETE",
+    })
+    .then(res => {
+        const data = res.data;
+        if (res.status >= 200 && res.status <= 299) {
+            onSuccess(data.data);
+        } else {
+            onError(data);
+        }
+        return data;
     })
     .catch(e => {
         if (e.response) {
